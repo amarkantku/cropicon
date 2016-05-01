@@ -1,0 +1,30 @@
+/* 
+	Theme Name 		: Cropicon - Landing page Template
+   	Author			: Cropicon Team
+   	Author e-mail	: coderthemes@gmail.com
+   	Version			: 1.0.0
+   	Created			: May 2016
+   	File Description:Main CSS file
+*/
+
+body {
+  padding-top:70px;
+  font: 14px Roboto, "Lucida Grande", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  color: #555;
+  background: #fff;
+  line-height: 1.42857143;
+}
+
+a {
+  color: #00B7FF;
+}
+
+ section#footer { font: 1em Roboto, Helvetica, Arial,sans-serif; }
+#description .description {
+    position: relative;
+    top: -5px;
+    font: 100 4.2em "Helvetica Neue","Open Sans",sans-serif;
+    color: #aeaeae;
+    line-height: .75;
+}
