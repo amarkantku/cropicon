@@ -23,3 +23,8 @@ mongoose.connect(app.get('MONGOBD_URI'), function(err) {
         console.log('connection successful');
     }
 });
+
+
+mongoose.connection.on('connected', function () {
+	console.log('Mongoose connected');
+});

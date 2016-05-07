@@ -3,6 +3,9 @@ var express = require('express');
 var router = express.Router();
 var User = require('../models/user');
 
+var UsersController = require('../controllers/UsersController');
+
+
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -24,6 +27,11 @@ router.post('/', function(req, res, next) {
     res.json(user);
   });
 });
+
+//router.get('/other', function(req, res, next) {
+    router.get('/list', UsersController.ListUser); 
+//});
+
 
 /* GET /users/id */
 router.get('/:id', function(req, res, next) {
@@ -50,12 +58,13 @@ router.delete('/:id', function(req, res, next) {
 });
 
 
-router.get('/adduser/:first/:last/:username', function(req, res){
+router.get('/adduser/:first/:last/:username/:email', function(req, res){
     var user = {
     	name: { first: req.params.first, last: req.params.last },
       	username: req.params.username,
       	password: 'password',
-      	location: 'IN'
+      	location: 'IN',
+        email:req.params.email
     };
 
     var user = new User(user);
@@ -87,6 +96,7 @@ router.get('/addhobby/:username/:hobby', function(req, res){
         }
     });
 });
+
 
 
 module.exports = router;

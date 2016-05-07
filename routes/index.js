@@ -2,6 +2,7 @@
 
 var express = require('express');
 var router = express.Router();
+var UsersController = require('../controllers/UsersController');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -9,16 +10,7 @@ router.get('/', function(req, res, next) {
 });
 
 
-router.post('/login', function(req, res){
-
-  req.assert('password', 'Password is required').notEmpty();
-  req.assert('email', 'A valid email is required').notEmpty().isEmail();
-  var errors = req.validationErrors();
-  if (errors)
-    res.render('index', {errors: errors});
-  else
-   //response.render('login', {email: request.email});
-    res.render('index', {title: 'Express',email: request.email});
-});
+router.get('/login', UsersController.login); 
+router.post('/login', UsersController.doLogin); 
 
 module.exports = router;
