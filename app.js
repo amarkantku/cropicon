@@ -61,10 +61,13 @@ app.use(helmet.noCache());
 
 
 app.use(session({ 
-  secret: 'B8C7682F9668B22760FBA9456B0D3C105ADF6310',
+  secret: '@xd-09%^%uHxY09-78lJ-OPisfd-8yF9-7w231',
   key: 'sessionId' ,
   cookie: { 
-    httpOnly: true, secure: true
+    httpOnly: true, 
+    secure: true,
+    expires: new Date(Date.now() + 60 * 10000), 
+    maxAge: 60*10000
   }, 
   resave: true, 
   saveUninitialized: true 

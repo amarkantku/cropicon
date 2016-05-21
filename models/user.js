@@ -13,6 +13,8 @@ Models are defined by passing a Schema instance to mongoose.model.
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var Schema = mongoose.Schema;
+
+// no of round , default it is 10
 const SALT_WORK_FACTOR = 12;
 const MAX_LOGIN_ATTEMPTS = 3;
 const LOCK_TIME = 2 * 60 * 60 * 1000;
@@ -124,23 +126,30 @@ UserSchema.pre('save', function(next) {
   	 	user.created_at = currentDate;
 	
   	if (!user.isModified('password')) return next();
-  	// generate a salt
-    bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
-        if (err) return next(err);
 
-        // hash the password using our new salt
-        bcrypt.hash(user.password, salt,null, function(err, hash) {
+    if (user.isModified('password') || user.isNew) {
+        // generate a salt
+        bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
             if (err) return next(err);
 
-            // override the cleartext password with the hashed one
-            user.password = hash;
-            next();
-        });
-    });
+            // hash the password using our new salt
+            bcrypt.hash(user.password, salt,null, function(err, hash) {
+                if (err) return next(err);
+
+                // override the cleartext password with the hashed one
+                user.password = hash;
+                next();
+            });
+        });  
+    }else{
+        return next();
+    }
+  	
 });
 
 // to compare user password
 UserSchema.methods.comparePassword = function(candidatePassword, cb) {
+    // Asynchronous call 
     bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
         if (err) return cb(err);
         cb(null, isMatch);
