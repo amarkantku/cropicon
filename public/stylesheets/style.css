@@ -28,3 +28,15 @@ a {
     color: #aeaeae;
     line-height: .75;
 }
+
+
+
+
+.white-popup {
+  position: relative;
+  background: #FFF;
+  padding: 2.5em;
+  width: auto;
+  max-width: 60%;
+  margin: 20px auto;
+}

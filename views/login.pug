@@ -13,8 +13,8 @@ block content
 					p.error= error.msg
 
 			  
-			form(method="post", action="/login")
+			form(method="post", action="/login" name="user_login_form" id="user-login-form")
 				input(type='hidden', name='_csrf', value=csrfToken)
 				input(type="text", name="email", placeholder="example@gmail.com")
 				input(type="password", name="password", placeholder="Password")
-				button(type="submit") Login
+				input(type="submit" value="Login") 

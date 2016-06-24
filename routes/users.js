@@ -1,10 +1,12 @@
-'use strict';
+"use strict";
+
 var express = require('express');
 var router = express.Router();
 var User = require('../models/user');
 
 var UsersController = require('../controllers/UsersController');
 
+router.get('/list', UsersController.ListUser); 
 
 
 /* GET users listing. */
@@ -28,9 +30,8 @@ router.post('/', function(req, res, next) {
   });
 });
 
-//router.get('/other', function(req, res, next) {
-    router.get('/list', UsersController.ListUser); 
-//});
+
+
 
 
 /* GET /users/id */
@@ -60,16 +61,16 @@ router.delete('/:id', function(req, res, next) {
 
 router.get('/adduser/:first/:last/:username/:email', function(req, res){
     var user = {
-    	name: { first: req.params.first, last: req.params.last },
-      	username: req.params.username,
-      	password: 'password',
-      	location: 'IN',
+        name: { first: req.params.first, last: req.params.last },
+        username: req.params.username,
+        password: 'password',
+        location: 'IN',
         email:req.params.email
     };
 
     var user = new User(user);
     user.save( function(err, data){
-       	if(err){
+        if(err){
             res.json(err);
         }else{
             res.json(data);
@@ -139,10 +140,10 @@ router.get('/addhobby/:username/:hobby', function(req, res){
             user.hobbies.push({ name: req.params.hobby });
             user.save( function(err, data){
                if(err){
-		            res.json(err);
-		        }else{
-		            res.json(data);
-		        }
+                    res.json(err);
+                }else{
+                    res.json(data);
+                }
             });
         }
     });

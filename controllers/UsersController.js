@@ -1,27 +1,28 @@
-'use strict';
+"use strict";
 
 var express = require('express');
 var router = express.Router();
 var User = require('../models/user');
 
- 
 exports.ListUser = function(req, res, next){
- /* User.createUser();
-  User.search('rakesh', function (err,users) {
+ /*User.search('rakesh', function (err,users) {
     if (err) return next(err);
     res.json(users);
   })*/
 
 	User.find({},function (err, users) {
     if (err) return next(err);
-    res.json(users);
+    res.json( {success: true ,results: users});
   });
 };
 
 
+// To render login page view
 exports.login = function(req, res, next){
-	res.render( 'login', { title : 'Login'});
+  res.render( 'login', { title : 'Login'});
 };
+
+
 
 exports.doLogin = function(req, res, next){
   req.assert('password', 'Password is required').notEmpty();
