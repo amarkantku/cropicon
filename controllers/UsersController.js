@@ -29,7 +29,7 @@ exports.doLogin = function(req, res, next){
 	req.assert('email', 'A valid email is required').notEmpty().isEmail();
 	var errors = req.validationErrors();
 	if (errors)
-  	res.render('login', {errors: errors});
+  	res.render('login', {title : 'Login',errors: errors});
 	else
  		res.render('login', {email: req.email});
   /*User.findOne({ email: req.body.email }, function(err, user) {

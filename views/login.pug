@@ -1,20 +1,19 @@
 extends layout
 
 block content
-	.container
-		.page-header
-			h1= title
-			p Welcome to #{title}
+	div.container
+		if errors
+			each error in errors
+				.alert.alert-danger 
+					a.close(href='#', data-dismiss='alert', aria-label='close') &times;
+					p= error.msg
 
-		.lead#description
-		
-			if errors
-				each error in errors
-					p.error= error.msg
 
-			  
-			form(method="post", action="/login" name="user_login_form" id="user-login-form")
-				input(type='hidden', name='_csrf', value=csrfToken)
-				input(type="text", name="email", placeholder="example@gmail.com")
-				input(type="password", name="password", placeholder="Password")
-				input(type="submit" value="Login") 
+		div.col-xs-6.col-sm-4   
+			form(method="post", action="/login" name="user_login_form" id="user-login-form" class="form-horizontal")
+				fieldset
+					legend Login
+					input(type='hidden', name='_csrf', value=csrfToken)
+					input(type="text", name="email")
+					input(type="password", name="password")
+					input(type="submit" value="Login" class="btn-login") 

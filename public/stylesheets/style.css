@@ -40,3 +40,43 @@ a {
   max-width: 60%;
   margin: 20px auto;
 }
+
+
+
+
+
+
+/******** BUTTON **********/
+
+.btn-login {
+    -webkit-border-radius: 2px;
+    border-radius: 2px; 
+    cursor: default; 
+    height: 27px;
+    line-height: 27px;
+    margin: 2px 0;
+    min-width: 54px;
+    padding: 0 8px;
+    text-align: center;
+    -webkit-transition: all 0.218s,visibility 0s;
+    transition: all 0.218s,visibility 0s;
+    -webkit-user-select: none;
+    background-color: #f5f5f5;
+    background-image: -webkit-gradient(linear,left top,left bottom,from(#f5f5f5),to(#f1f1f1));
+    background-image: -webkit-linear-gradient(top,#f5f5f5,#f1f1f1);
+    background-image: linear-gradient(top,#f5f5f5,#f1f1f1);
+    border: 1px solid #dcdcdc;
+    color: #444;
+}
+
+
+input[type="text"],input[type="password"] {
+  background-image:url(../images/form_bg.jpg);
+  background-repeat:repeat-x;
+  border: 1px solid #dcdcdc;
+  width: 250px;
+  color: #444;
+  padding:3px;
+  margin-right:4px;
+  margin-bottom:8px;
+}

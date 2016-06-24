@@ -77,6 +77,7 @@ app.use(session({
 app.use(function (req, res, next) {
   res.cookie('XSRF-TOKEN', req.csrfToken());
   res.locals.csrfToken = req.csrfToken();
+  console.log(req.cookies);
   next();
 });
 
