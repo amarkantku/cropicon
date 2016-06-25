@@ -5,11 +5,11 @@
  * with that table and Models are defined by passing a Schema instance to mongoose.model.
  */
 
-
 // grab the things we need
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var Schema = mongoose.Schema;
+
 
 // no of round , default it is 10
 const SALT_WORK_FACTOR = 12;
@@ -17,79 +17,24 @@ const MAX_LOGIN_ATTEMPTS = 3;
 const LOCK_TIME = 2 * 60 * 60 * 1000;
 
 
-var Hobby = new Schema({
-    name: { type: String, required: true, trim: true }
-});
-
 // create a schema
 var UserSchema = new Schema({
-	name: {
-	        first: { 
-	        	type: String, 
-	        	required: true, 
-	        	trim: true,
-	        	validate: /[ A-Za-z]/
-	        },
-	        last: { 
-	        	type: String, 
-	        	trim: true 
-	        }
-		},
-	username: { 
-		type: String, 
-		required: true, 
-		unique: true, 
-		trim: true 
-	},
-	password: { 
-		type: String, 
-		required: true , 
-		trim: true 
-	},
-	email: { 
-		type: String, 
-		set: toLower , 
-		unique: true 
-	} ,
-	email_list: {
-        type: [String],
-        unique: true,
-        default : ['john@doe.com', 'foo@bar.com']
-    },
-	role: {
-		type:String,
-		default:'guest'
-	},
-	gender: { 
-		type: String, 
-		enum: ['M', 'F', 'T'] ,
-		default:'M' 
-	},
-	address: String,
-    phone: {
-    	type:String
-    },
-	dob : { 
-		type: Date, 
-		default: Date.now 
-	},
-	login_attempts: { 
-		type: Number, 
-		required: true, 
-		default: 0 
-	},
-    lock_until: { 
-    	type: Number 
-    },
-	location: String,
-    verified: { type: Boolean, default: false },
-	hobbies: [Hobby],
-	created_at: Date,
-	updated_at: Date
+	username       : { type: String, required: true, unique: true, trim: true },
+	email          : { type: String, set: toLower ,  unique: true } ,
+    password       : { type: String, required: true , trim: true },
+	role           : { type: String, default:'guest'},
+    mobile_no      : { type: String },
+	login_attempts : { type: Number, required: true, default: 0 },
+    lock_until     : { type: Number },
+	verified       : { type: Boolean, default: false },
+    is_active      : { type: String, enum: ['Y', 'N'] , default:'Y' },
+	created_at     : Date,
+	updated_at     : Date,
+    deleted_at     : Date
 });
 
 
-// a setter
+// a setter method
 function toLower (value) {
   return value.toLowerCase();
 }
@@ -129,11 +74,11 @@ UserSchema.pre('save', function(next) {
     // if password is modified or creating new user 
     if (user.isModified('password') || user.isNew) {
 
-        // generate a salt
+        // generate a salt : round[optional] & callback, callback fired once salt has been generated.
         bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
             if (err) return next(err);
 
-            // hash the password using our new salt
+            // hash the password using our new salt [data , salt , progress - cb ,callback]
             bcrypt.hash(user.password, salt, null, function(err, hash) {
                 if (err) return next(err); 
 
@@ -187,8 +132,8 @@ UserSchema.pre('update', function(next) {
 	directly on your Model.
 */
 
-UserSchema.statics.search = function search (name, callback) {
-  return this.where('name.first', new RegExp(name, 'i')).exec(callback);
+UserSchema.statics.search = function search (email, callback) {
+    return this.where('email', new RegExp(email, 'i')).exec(callback);
 }
 
 // expose enum on the model, and provide an internal convenience reference 

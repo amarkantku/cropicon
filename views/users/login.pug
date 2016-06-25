@@ -1,4 +1,4 @@
-extends layout
+extends ../layout.pug
 
 block content
 	div.container
@@ -10,10 +10,14 @@ block content
 
 
 		div.col-xs-6.col-sm-4   
-			form(method="post", action="/login" name="user_login_form" id="user-login-form" class="form-horizontal")
+			form(method="post", action="/users/login" name="user_login_form" id="user-login-form" class="form-horizontal")
 				fieldset
 					legend Login
 					input(type='hidden', name='_csrf', value=csrfToken)
-					input(type="text", name="email")
+					if email
+						input(type="text", name="email" value=email)
+					else
+						input(type="text", name="email")
+						
 					input(type="password", name="password")
 					input(type="submit" value="Login" class="btn-login") 
