@@ -16,7 +16,7 @@ var helmet = require('helmet');
 var validator = require('express-validator');
 var pug = require('pug');
 
-
+// config 
 var db = require('./config/db');
 var secretKEY = require('./config/secret-key');
 
@@ -50,6 +50,7 @@ app.use(helmet());
 app.use(validator());
 app.use(csrf({ cookie: true }));
 
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/css', express.static(__dirname + '/public/stylesheets'));
 app.use('/img', express.static(__dirname + '/public/images'));
@@ -77,7 +78,7 @@ app.use(session({
 app.use(function (req, res, next) {
   res.cookie('XSRF-TOKEN', req.csrfToken());
   res.locals.csrfToken = req.csrfToken();
-  console.log(req.cookies);
+  //console.log(process.env);
   next();
 });
 

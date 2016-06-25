@@ -1,7 +1,9 @@
 "use strict";
 
-/* Methods are used to interact with the current instance of the model."Model" which is used to interact 
-with that table and Models are defined by passing a Schema instance to mongoose.model.*/
+/* 
+ * Methods are used to interact with the current instance of the model."Model" which is used to interact 
+ * with that table and Models are defined by passing a Schema instance to mongoose.model.
+ */
 
 
 // grab the things we need
@@ -80,6 +82,7 @@ var UserSchema = new Schema({
     	type: Number 
     },
 	location: String,
+    verified: { type: Boolean, default: false },
 	hobbies: [Hobby],
 	created_at: Date,
 	updated_at: Date

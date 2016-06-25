@@ -6,7 +6,8 @@ var User = require('../models/user');
 
 var UsersController = require('../controllers/UsersController');
 
-router.get('/list', UsersController.ListUser); 
+router.get('/list', UsersController.ListUser);
+router.get('/sign-up', UsersController.signUp); 
 
 
 /* GET users listing. */
@@ -113,16 +114,18 @@ router.get('/check-pwd/:username', function(req, res){
         var reasons = User.failedLogin;
         switch (reason) {
             case reasons.NOT_FOUND:
-                console.log('NOT_FOUND');break;
+                console.log('NOT_FOUND');
+                break;
+
             case reasons.PASSWORD_INCORRECT:
                 console.log('PASSWORD_INCORRECT');
                 // note: these cases are usually treated the same - don't tell
                 // the user *why* the login failed, only that it did
                 break;
+
             case reasons.MAX_ATTEMPTS:
                 console.log('MAX_ATTEMPTS');
-                // send email or otherwise notify user that account is
-                // temporarily locked
+                // send email or otherwise notify user that account is temporarily locked
                 break;
         }
     });

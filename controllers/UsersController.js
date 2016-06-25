@@ -1,7 +1,8 @@
 "use strict";
 
-var express = require('express');
-var router = express.Router();
+// var express = require('express');
+// var router = express.Router();
+
 var User = require('../models/user');
 
 exports.ListUser = function(req, res, next){
@@ -18,14 +19,14 @@ exports.ListUser = function(req, res, next){
 
 
 // To render login page view
-exports.login = function(req, res, next){
+exports.login = function(req, res){
   res.render( 'login', { title : 'Login'});
 };
 
 
 
 exports.doLogin = function(req, res, next){
-  req.assert('password', 'Password is required').notEmpty();
+    req.assert('password', 'Password is required').notEmpty();
 	req.assert('email', 'A valid email is required').notEmpty().isEmail();
 	var errors = req.validationErrors();
 	if (errors)
@@ -45,4 +46,9 @@ exports.doLogin = function(req, res, next){
     }
   });*/
 
+};
+
+// GET user sign-up form
+exports.signUp = function(req, res){
+    res.render('users/sign-up', { title: 'Create user', buttonText: "Join!" });
 };
