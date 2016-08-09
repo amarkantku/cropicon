@@ -18,6 +18,7 @@
     "express-session": "~1.13.0",
     "express-validator": "^2.20.3",
     "helmet": "^2.0.0",
+    "jsonwebtoken": "^7.1.7",
     "mongodb": "~2.1.4",
     "mongoose": "~4.4.14",
     "morgan": "~1.7.0",
@@ -25,6 +26,7 @@
     "nsp": "^2.3.2",
     "pug": "^2.0.0-alpha6",
     "serve-favicon": "~2.3.0",
+    "socket.io": "^1.4.8",
     "uglify-js": "^2.6.2"
   },
   "engines": {

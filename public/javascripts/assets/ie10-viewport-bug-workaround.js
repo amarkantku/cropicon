@@ -20,4 +20,8 @@
     document.querySelector('head').appendChild(msViewportStyle)
   }
 
+    $.ajaxSetup({
+        headers: {'X-CSRF-Token': $('meta[name="_csrf"]').attr('content')}
+    });
+
 })();

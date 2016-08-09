@@ -7,8 +7,9 @@ exports.ListUser = function(req, res, next){
         if (err) return next(err);
         res.json(users);
     })*/
+    
 
-	User.find({},function (err, users) {
+	User.find({}).select('-password').exec(function (err, users) {
         if (err) return next(err);
         res.json( {success: true ,count:users.length, results: users});
     });
@@ -40,7 +41,7 @@ exports.doLogin = function(req, res, next){
                 // handle login success
                 console.log('login success');
                 //req.session.user = user;
-                res.redirect('/');    
+                return res.redirect('/');   
             }
 
             // otherwise we can determine why we failed

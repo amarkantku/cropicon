@@ -21,7 +21,7 @@ const LOCK_TIME = 2 * 60 * 60 * 1000;
 var UserSchema = new Schema({
 	username       : { type: String, required: true, unique: true, trim: true },
 	email          : { type: String, set: toLower ,  unique: true } ,
-    password       : { type: String, required: true , trim: true },
+    password       : { type: String, required: true , trim: true , select: false },
 	role           : { type: String, default:'guest'},
     mobile_no      : { type: String },
 	login_attempts : { type: Number, required: true, default: 0 },
@@ -59,6 +59,7 @@ UserSchema.virtual('isLocked').get(function() {
 
 UserSchema.pre('save', function(next) {
 	var user = this;
+
   	var currentDate = new Date();
  
   	// change the updated_at field to current date
@@ -84,6 +85,8 @@ UserSchema.pre('save', function(next) {
 
                 // override the cleartext password with the hashed one
                 user.password = hash;
+
+                // goto next matching route
                 next();
             });
         });  
@@ -102,6 +105,7 @@ UserSchema.methods.comparePassword = function(candidatePassword, cb) {
 
 // Increments login attempts
 UserSchema.methods.incLoginAttempts = function(cb) {
+
     // if we have a previous lock that has expired, restart at 1
     if (this.lock_until && this.lock_until < Date.now()) {
         return this.update({
@@ -117,6 +121,7 @@ UserSchema.methods.incLoginAttempts = function(cb) {
     if (this.login_attempts + 1 >= MAX_LOGIN_ATTEMPTS && !this.isLocked) {
         updates.$set = { lock_until: Date.now() + LOCK_TIME };
     }
+    
     return this.update(updates, cb);
 };
 
@@ -144,7 +149,7 @@ var reasons = UserSchema.statics.failedLogin = {
 // to check login system & locking protocol
 UserSchema.statics.getAuthenticated = function(username, password, cb) {
     
-    this.findOne({ username: username }, function(err, user) {
+    this.findOne({ username: username }).select('+password').exec(function(err, user) {
         if (err) return cb(err);
 
         // make sure the user exists

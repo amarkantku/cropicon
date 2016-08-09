@@ -5,8 +5,7 @@ var router = require('express').Router(),
 
 router.get('/login', UsersController.login); 
 router.post('/login', UsersController.doLogin); 
-
+router.get('/sign-up', UsersController.signUp);
 router.get('/list', UsersController.ListUser);
-router.get('/sign-up', UsersController.signUp); 
 
 module.exports = router;

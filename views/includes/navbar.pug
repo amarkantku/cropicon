@@ -27,5 +27,8 @@ header
                                 li: a( href="#" ) Separated link
                                 li: a( href="#" ) One more separated link
                     ul.nav.navbar-nav.navbar-right
-                        li: a( href="/users/login") Login
-                        li: a( href="/users/sign-up" ) Sign Up
+                        if user
+                            li: a(href='/users/logout') Logout
+                        else
+                            li: a( href="/users/login") Login
+                            li: a( href="/users/sign-up" ) Sign Up

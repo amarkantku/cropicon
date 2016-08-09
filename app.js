@@ -1,31 +1,34 @@
 'use strict';
 
-var express = require('express');
-var path = require('path');
-var fs = require('fs');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+var express       = require('express');
+var path          = require('path');
+var fs            = require('fs');
+var favicon       = require('serve-favicon');
+var logger        = require('morgan');
+var cookieParser  = require('cookie-parser');
+var bodyParser    = require('body-parser');
 
 // security & validation
-var compression = require('compression');
-var session = require('express-session');
-var csrf = require('csurf');
-var helmet = require('helmet');
-var validator = require('express-validator');
-var pug = require('pug');
+var compression   = require('compression');
+var session       = require('express-session');
+var csrf          = require('csurf');
+var helmet        = require('helmet');
+var validator     = require('express-validator');
+var pug           = require('pug');
 
 // config 
-var db = require('./config/db');
+// var db = require('./config/db');
 var secretKEY = require('./config/secret-key');
 
+var app     = express();
+    app.io  = require('socket.io')();
 
-var routes = require('./routes/index');
-var users = require('./routes/users');
+var routes  = require('./routes/index');
+var users   = require('./routes/users');
 var aboutus = require('./routes/aboutus');
+var api     = require('./routes/api')(app, express);
 
-var app = express();
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -48,16 +51,23 @@ app.use(cookieParser(secretKEY.COOKIES_SECRET));
 app.use(compression());
 app.use(helmet());
 app.use(validator());
-app.use(csrf({ cookie: true }));
 
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/css', express.static(__dirname + '/public/stylesheets'));
 app.use('/img', express.static(__dirname + '/public/images'));
+app.use('/ngs', express.static(__dirname + '/public/angular'));
 app.use('/js', express.static(__dirname + '/public/javascripts'));
+app.use('/socket', express.static(__dirname + '/public/javascripts/socket.io'));
+app.use('/css', express.static(__dirname + '/public/stylesheets'));
+app.use('/upload',express.static(path.join(__dirname, 'upload')));
+
+app.use('/api/v1',api);
+
+
+app.use(csrf({ cookie: true }));
 
 //Security shyts
-app.use(helmet());
+// app.use(helmet());
 app.use(helmet.xssFilter({ setOnOldIE: true }));
 app.use(helmet.frameguard('deny'));
 app.use(helmet.hsts({maxAge: 7776000000, includeSubdomains: true}));
@@ -76,9 +86,8 @@ app.use(session({
 //app.use(csrf());
 
 app.use(function (req, res, next) {
-  res.cookie('XSRF-TOKEN', req.csrfToken());
+  res.cookie('XSRF-TOKEN', req.csrfToken(),{secure:true});
   res.locals.csrfToken = req.csrfToken();
-  //console.log(process.env);
   next();
 });
 
@@ -118,5 +127,7 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
+
+var socketio = require('./socket/io')(app);
 
 module.exports = app;
