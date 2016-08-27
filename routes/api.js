@@ -43,7 +43,7 @@ module.exports = function(app, express) {
 	var api = express.Router();
 
 	api.post('/user/signup', function(req , res ){
-	
+	  // check user exist ? 
 	});
 
 	api.post('/user/login', function(req , res ){
@@ -55,7 +55,8 @@ module.exports = function(app, express) {
             	var userTokenInfo = {
  					_id : user._id,
  					email:user.email,
- 					username : user.username
+ 					username : user.username,
+ 					created_at : Date,
             	};
       			createToken(userTokenInfo,function(err , token){
       				if(token){
@@ -85,7 +86,7 @@ module.exports = function(app, express) {
 	                 	message = "MAX_ATTEMPTS";
 	                    break;
 	            }
-	            res.json({message: message});
+	            res.json({ success:false,message: message,data:{email:req.body.email,password:''}});
             }
         });
 	});
