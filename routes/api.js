@@ -6,14 +6,14 @@ var jwt = require('jsonwebtoken');
 var fs = require('fs');
 
 function getPrivateCert(callback){
-	fs.readFile(require('path').resolve(__dirname, '../config/private.pem'), function read(err, data) {
+	fs.readFile(require('path').resolve(__dirname, '../config/private-rsa-1024.pem'), function read(err, data) {
 		if (err) throw err;
 	  	callback(data);
 	});
 }
 
 function getPublicCert(callback){
-	fs.readFile(require('path').resolve(__dirname, '../config/public.pem'), function read(err, data) {
+	fs.readFile(require('path').resolve(__dirname, '../config/public-rsa-1024.pem'), function read(err, data) {
 	   	if (err) throw err;
 	   	callback(data);  
 	});
@@ -55,7 +55,6 @@ module.exports = function(app, express) {
             	var userTokenInfo = {
  					_id : user._id,
  					email:user.email,
- 					username : user.username,
  					created_at : Date,
             	};
       			createToken(userTokenInfo,function(err , token){
