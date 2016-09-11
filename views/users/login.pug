@@ -1,1 +1,16 @@
-<h1>Login Page</h1>
+<div class="container" ng-controller="LoginController as ctrl">
+	<div class="row">
+		<div class="col-md-6 col-md-offset-3">
+		<div class="panel panel-primary">
+			<div class="panel-heading">{{headerTitle}}</div>
+			<div class="panel-body">
+				<form role="form" name="userLoginForm" id="user-login-form" ng-submit="ctrl.submit()">
+					<input type="text" name="uname" ng-model="ctrl.user.username" placeholder="Username" ng-required ng-minlength="4">
+					<input type="password" name="pwd" ng-model="ctrl.user.password" placeholder="Password" ng-required>
+					<input class="btn-login" type="submit" value="Submit" ng-disabled="userLoginForm.$invalid">
+				</form>
+			</div>
+		</div>	
+		</div>	
+	</div>
+</div>

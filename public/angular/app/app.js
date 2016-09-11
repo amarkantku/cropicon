@@ -54,6 +54,9 @@ app.controller('AboutUsController', ['$scope','$log', function($scope,$log) {
 
 
 app.controller('LoginController', ['$scope','$log', function($scope,$log) {
-    $scope.message = 'Hello From Controller';
-    $log.info('login');
+    $scope.headerTitle = 'Login !';
+    var self = this;
+    self.submit = function() {
+        $log.info('User clicked submit with ', self.user);
+    };
 }]);

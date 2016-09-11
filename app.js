@@ -59,7 +59,6 @@ app.use('/ngs', express.static(__dirname + '/public/angular'));
 app.use('/js', express.static(__dirname + '/public/javascripts'));
 app.use('/socket', express.static(__dirname + '/public/javascripts/socket.io'));
 app.use('/css', express.static(__dirname + '/public/stylesheets'));
-app.use('/bootsrap', express.static(__dirname + '/public/bootsrap'));
 app.use('/upload',express.static(path.join(__dirname, 'upload')));
 
 app.use('/api/v1',api);
