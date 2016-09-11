@@ -59,6 +59,7 @@ app.use('/ngs', express.static(__dirname + '/public/angular'));
 app.use('/js', express.static(__dirname + '/public/javascripts'));
 app.use('/socket', express.static(__dirname + '/public/javascripts/socket.io'));
 app.use('/css', express.static(__dirname + '/public/stylesheets'));
+app.use('/bootsrap', express.static(__dirname + '/public/bootsrap'));
 app.use('/upload',express.static(path.join(__dirname, 'upload')));
 
 app.use('/api/v1',api);
@@ -92,9 +93,15 @@ app.use(function (req, res, next) {
 });
 
 // routes  
-app.use('/', routes);
-app.use('/users', users);
-app.use('/about-us', aboutus);
+
+  app.get('/partials/:filename', routes.partials);
+  app.get('/users/:filename', users.actions);
+
+  app.use(routes.index);
+
+//app.use('/', routes);
+//app.use('/users', users);
+//app.use('/partials', aboutus);
 
 
 // catch 404 and forward to error handler
