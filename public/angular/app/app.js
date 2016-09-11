@@ -16,6 +16,10 @@ app.config(function ($routeProvider,$locationProvider) {
             templateUrl: 'users/login',
             controller: 'LoginController'
         })
+        .when('/sign-up', {
+            templateUrl: 'users/signup',
+            controller: 'SignUpController'
+        })
         .otherwise({
             redirectTo: '/'
         });
@@ -52,11 +56,16 @@ app.controller('AboutUsController', ['$scope','$log', function($scope,$log) {
     $log.info('about-us');
 }]);
 
+app.controller('SignUpController', ['$scope','$log', function($scope,$log) {
+    $scope.message = 'Hello From SignUpController';
+    $log.info('SignUpController');
+}]);
+
 
 app.controller('LoginController', ['$scope','$log', function($scope,$log) {
     $scope.headerTitle = 'Login !';
     var self = this;
     self.submit = function() {
-        $log.info('User clicked submit with ', self.user);
+       $log.info('User clicked submit with ', self.user);
     };
 }]);

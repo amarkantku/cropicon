@@ -25,7 +25,6 @@ var app     = express();
 
 var routes  = require('./routes/index');
 var users   = require('./routes/users');
-var aboutus = require('./routes/aboutus');
 var api     = require('./routes/api')(app, express);
 
 
