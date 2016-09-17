@@ -4,6 +4,9 @@ var db = require('../config/db');
 var User = require('../models/user');
 var jwt = require('jsonwebtoken');
 var fs = require('fs');
+var crypto =  require('crypto');
+var path          = require('path');
+
 
 function getPrivateCert(callback){
 	fs.readFile(require('path').resolve(__dirname, '../config/private-rsa-1024.pem'), function read(err, data) {
@@ -39,14 +42,43 @@ function verifyToken(token , callback){
 }
 
 
-module.exports = function(app, express) {
+module.exports = function(app, express,multer) {
 	var api = express.Router();
 
-	api.post('/user/signup', function(req , res ){
+	var storage =   multer.diskStorage({
+  		destination: function (req, file, callback) {
+  			var avatarMimeType = ['image/png','image/jpg','image/jpeg'];
+  			if(file.fieldname === 'avatar' && avatarMimeType.indexOf(file.mimetype) >= 0){
+  				callback(null, './uploads/users/profile/images/');
+  			}else{
+  				callback(null, './uploads');
+  			}
+  		},
+		filename: function (req, file, callback) {
+			/*crypto.pseudoRandomBytes(8, function (err, raw) {
+			    if (err) return callback(err)
+				callback(null, raw.toString('hex') + Date.now() + path.extname(file.originalname))
+			});*/
+
+			callback(null, req.authUser._id + path.extname(file.originalname))
+
+			// callback(null, file.fieldname + '-' + Date.now() + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]);
+		}
+	});
+
+	var upload = multer({ storage: storage });
+
+	// To upload user profile images 
+	var userProfileImageUpload = upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'gallery', maxCount: 8 }]);
+
+
+
+
+	api.post('/users/signup', function(req , res ){
 	  // check user exist ? 
 	});
 
-	api.post('/user/login', function(req , res ){
+	api.post('/users/login', function(req , res ){
 	    User.getAuthenticated(req.body.email, req.body.password, function(err, user, reason) {
             if (err) throw err;
             
@@ -90,6 +122,7 @@ module.exports = function(app, express) {
         });
 	});
 
+
 	/**************************Middleware****************************/
 
 	api.use(function(req, res, next){
@@ -109,10 +142,53 @@ module.exports = function(app, express) {
 
 	/**************************Middleware end***********************/
 
-	api.post('/user/me', function(req , res ){
+	api.post('/users/me', function(req , res ){
         if(req.authUser){
         	res.json(req.authUser);
         }
+	});
+
+	api.get('/users/x', function(req , res ){
+	   if(req.authUser){
+	       	res.setHeader('Content-Type', 'image/*');
+    		fs.createReadStream(path.join('./uploads/users/profile/images/', req.headers.filename)).pipe(res)
+	    }
+	});
+
+
+	
+	api.post('/users/profile',userProfileImageUpload ,function (req, res, next) {
+
+		// To see log
+		console.log(req.files);
+		
+		for (var i = 0, len = req.files.avatar.length; i < len; i++) {
+		  console.log(req.files.avatar[i]);
+		}
+
+		res.json({error_code:0,err_desc:null, filename: req.files.avatar[req.files.avatar.length - 1 ].filename, message:'file uploaded'});
+
+		
+		userProfileImageUpload(req, res, function (err) {
+	    	if (err) {
+	      		res.status(403).send({success:false,message:"Unable to upload. Try again !"});
+	      		res.end();
+	    	}
+	  	});
+
+	  	
+	  	/*fs.readFile(req.files.avatar.path, function (err, data) {
+		  	var imageName = req.files.avatar.name;
+	        if(!imageName){
+	            console.log("There was an error")
+	            res.end();
+	        }else{
+	        	var destinationPath = __dirname + "/uploads/users/profile/images/" + imageName;
+			  	fs.writeFile(destinationPath, data, function (err) {
+			    	res.redirect("back");
+			  	});
+	        }
+		});*/
 	});
 
 

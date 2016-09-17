@@ -8,6 +8,8 @@ var logger        = require('morgan');
 var cookieParser  = require('cookie-parser');
 var bodyParser    = require('body-parser');
 
+var multer        = require('multer');
+
 // security & validation
 var compression   = require('compression');
 var session       = require('express-session');
@@ -15,6 +17,7 @@ var csrf          = require('csurf');
 var helmet        = require('helmet');
 var validator     = require('express-validator');
 var pug           = require('pug');
+
 
 // config 
 // var db = require('./config/db');
@@ -25,7 +28,7 @@ var app     = express();
 
 var routes  = require('./routes/index');
 var users   = require('./routes/users');
-var api     = require('./routes/api')(app, express);
+var api     = require('./routes/api')(app, express, multer);
 
 
 
@@ -58,7 +61,7 @@ app.use('/ngs', express.static(__dirname + '/public/angular'));
 app.use('/js', express.static(__dirname + '/public/javascripts'));
 app.use('/socket', express.static(__dirname + '/public/javascripts/socket.io'));
 app.use('/css', express.static(__dirname + '/public/stylesheets'));
-app.use('/upload',express.static(path.join(__dirname, 'upload')));
+app.use('/uploads',express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/v1',api);
 
