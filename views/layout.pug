@@ -1,9 +1,11 @@
 doctype html
-html(lang='en')
-	include includes/header
-	body(ng-app='cropicon')
-		include includes/navbar
+html(lang='en' , ng-app='cropicon')
+	head
+		include includes/head
+	body
+		include includes/header
 		block content
-		div(ng-view) 
+		div.main-view
+			div.container(ng-view) 
 		include includes/footer
 		include includes/footer-js

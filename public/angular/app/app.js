@@ -5,10 +5,12 @@ app.config(function ($routeProvider,$locationProvider) {
 	$locationProvider.html5Mode({enabled: true,requireBase: false});
 	$routeProvider
 		.when('/', {
+            title: 'Home',
         	templateUrl: 'partials/home',
         	controller: 'HomeController'
       	})
         .when('/about-us', {
+            title: 'About us',
             templateUrl: 'partials/aboutus',
             controller: 'AboutUsController'
         })
@@ -24,8 +26,21 @@ app.config(function ($routeProvider,$locationProvider) {
             redirectTo: '/'
         });
 })
-.run(['$rootScope', '$location','$cookies','$log' , function($rootScope, $location,$cookies,$log) {
+.run(['$rootScope', '$location','$cookieStore','$log','$window' , function($rootScope, $location,$cookieStore,$log,$window) {
     $rootScope.$on('$routeChangeStart', function(event, currRoute, prevRoute){
+        $rootScope.title = '';
+        if(currRoute.$$route.title !== undefined){
+            $rootScope.title = currRoute.$$route.title;
+        }
+         
+           // $window.document.title = currRoute.$$route.title;
+            $cookieStore.put('test',11);
+
+            if($cookieStore.get('loggedIn')){
+                $log.info('logged in');
+            }else{
+                // $log.error('Try to login');
+            }
 
     	// $log.info(currRoute);
     	// $log.info(prevRoute);
