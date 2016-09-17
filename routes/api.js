@@ -148,7 +148,7 @@ module.exports = function(app, express,multer) {
         }
 	});
 
-	api.get('/users/x', function(req , res ){
+	api.get('/users/image', function(req , res ){
 	   if(req.authUser){
 	       	res.setHeader('Content-Type', 'image/*');
     		fs.createReadStream(path.join('./uploads/users/profile/images/', req.headers.filename)).pipe(res)
