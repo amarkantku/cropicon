@@ -14,6 +14,11 @@ app.config(function ($routeProvider,$locationProvider) {
             templateUrl: 'partials/aboutus',
             controller: 'AboutUsController'
         })
+        .when('/how-it-works', {
+            title: 'How It Works',
+            templateUrl: 'partials/howitworks',
+            controller: 'HowItWorksController'
+        })
         .when('/login', {
             templateUrl: 'users/login',
             controller: 'LoginController'
@@ -28,9 +33,10 @@ app.config(function ($routeProvider,$locationProvider) {
 })
 .run(['$rootScope', '$location','$cookieStore','$log','$window' , function($rootScope, $location,$cookieStore,$log,$window) {
     $rootScope.$on('$routeChangeStart', function(event, currRoute, prevRoute){
+        
         $rootScope.title = '';
         if(currRoute.$$route.title !== undefined){
-            $rootScope.title = currRoute.$$route.title;
+            $rootScope.title = currRoute.$$route.title ;
         }
          
            // $window.document.title = currRoute.$$route.title;
@@ -77,9 +83,16 @@ app.controller('SignUpController', ['$scope','$log', function($scope,$log) {
 }]);
 
 
+
+app.controller('HowItWorksController', ['$scope','$log', function($scope,$log) {
+    $scope.message = 'Hello From HowItWorksController';
+    $log.info('HowItWorksController');
+}]);
+
+
 app.controller('LoginController', ['$scope','$log', function($scope,$log) {
     $scope.headerTitle = 'Login !';
-    var self = this;
+    let self = this;
     self.submit = function() {
        $log.info('User clicked submit with ', self.user);
     };

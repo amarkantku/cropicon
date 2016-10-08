@@ -5,7 +5,7 @@ var User = require('../models/user');
 var jwt = require('jsonwebtoken');
 var fs = require('fs');
 var crypto =  require('crypto');
-var path          = require('path');
+var path = require('path');
 
 
 function getPrivateCert(callback){
@@ -48,6 +48,7 @@ module.exports = function(app, express,multer) {
 	var storage =   multer.diskStorage({
   		destination: function (req, file, callback) {
   			var avatarMimeType = ['image/png','image/jpg','image/jpeg'];
+  			
   			if(file.fieldname === 'avatar' && avatarMimeType.indexOf(file.mimetype) >= 0){
   				callback(null, './uploads/users/profile/images/');
   			}else{
@@ -61,12 +62,11 @@ module.exports = function(app, express,multer) {
 			});*/
 
 			callback(null, req.authUser._id + path.extname(file.originalname))
-
 			// callback(null, file.fieldname + '-' + Date.now() + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]);
 		}
 	});
 
-	var upload = multer({ storage: storage });
+	var upload = multer({ storage: storage, limits:{ fileSize: 1048576 } });
 
 	// To upload user profile images 
 	var userProfileImageUpload = upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'gallery', maxCount: 8 }]);
@@ -75,8 +75,11 @@ module.exports = function(app, express,multer) {
 
 
 	api.post('/users/signup', function(req , res ){
-	  // check user exist ? 
+	  	// check user exist ? 
+
+	  	// if user doesn't exist , create new user
 	});
+
 
 	api.post('/users/login', function(req , res ){
 	    User.getAuthenticated(req.body.email, req.body.password, function(err, user, reason) {
@@ -84,12 +87,14 @@ module.exports = function(app, express,multer) {
             
             // login was successful
             if (user) {
+
             	var userTokenInfo = {
  					_id : user._id,
  					email:user.email,
- 					created_at : Date,
+ 					created_at : Date
             	};
-      			createToken(userTokenInfo,function(err , token){
+
+      			createToken(userTokenInfo, function(err , token){
       				if(token){
                 		res.json({success:true,message:"Successfuly login!",token:token});
       				}else{
@@ -101,20 +106,25 @@ module.exports = function(app, express,multer) {
             	// otherwise we can determine why we failed
 	            var reasons = User.failedLogin;
 	            var message = "";
+
 	            switch (reason) {
 	                case reasons.NOT_FOUND:
-	                    console.log('NOT_FOUND');
+	                    // console.log('NOT_FOUND');
 	                    message = "User doesn't exist";
 	                    break;
 
 	                case reasons.PASSWORD_INCORRECT:
-	                    console.log('PASSWORD_INCORRECT');
+	                    // console.log('PASSWORD_INCORRECT');
 	              		message = "Invalid password";
 	                    break;
 
+	                 case reasons.IN_ACTIVE:
+	              		message = "You've been blocked or de-activated by system admin.";
+	                    break;
+
 	                case reasons.MAX_ATTEMPTS:
-	                    console.log('MAX_ATTEMPTS');
-	                 	message = "MAX_ATTEMPTS";
+	                    // console.log('MAX_ATTEMPTS');
+	                 	message = "You've reached max attempts! Please verify your credentials and try after 10 minutes.";
 	                    break;
 	            }
 	            res.json({ success:false,message: message,data:{email:req.body.email,password:''}});
@@ -140,6 +150,7 @@ module.exports = function(app, express,multer) {
 		}
 	});
 
+
 	/**************************Middleware end***********************/
 
 	api.post('/users/me', function(req , res ){
@@ -155,27 +166,36 @@ module.exports = function(app, express,multer) {
 	    }
 	});
 
-
-	
-	api.post('/users/profile',userProfileImageUpload ,function (req, res, next) {
-
-		// To see log
-		console.log(req.files);
-		
-		for (var i = 0, len = req.files.avatar.length; i < len; i++) {
-		  console.log(req.files.avatar[i]);
-		}
-
-		res.json({error_code:0,err_desc:null, filename: req.files.avatar[req.files.avatar.length - 1 ].filename, message:'file uploaded'});
-
-		
+	api.post('/users/profile' ,function ( req, res, next) {
 		userProfileImageUpload(req, res, function (err) {
-	    	if (err) {
-	      		res.status(403).send({success:false,message:"Unable to upload. Try again !"});
-	      		res.end();
-	    	}
-	  	});
+		    if (err) {
+		       res.status(413).send({"error":err});
+		    }else{
+		    	// Once upload do I/O operations , Save into database
+		    	res.status(200).send({"file":req.files});
+		    }
+		});
 
+		/*if(err){
+			console.error(err.stack);
+			res.status(413).send('File too large');
+		}else{
+			console.log(req.files);
+			for (var i = 0, len = req.files.avatar.length; i < len; i++) {
+			 // console.log(req.files.avatar[i]);
+			}
+
+			res.json({error_code:0,err_desc:null, filename: req.files.avatar[req.files.avatar.length - 1 ].filename, message:'file uploaded'});
+		}*/
+
+		/*if(typeof req.fileSizeError != "undefined") {
+	        res.status(413).send({"error":"File too large"});// to display filesize error
+	    } else {
+	        res.status(200).send({"file":req.files}); // when file uploaded successfully
+	    }*/
+
+
+		//res.json({error_code:0,err_desc:null, filename: req.files.avatar[req.files.avatar.length - 1 ].filename, message:'file uploaded'});
 	  	
 	  	/*fs.readFile(req.files.avatar.path, function (err, data) {
 		  	var imageName = req.files.avatar.name;
@@ -190,6 +210,8 @@ module.exports = function(app, express,multer) {
 	        }
 		});*/
 	});
+
+
 
 
 	return api;

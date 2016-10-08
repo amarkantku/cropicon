@@ -14,8 +14,11 @@ header.header(role='banner')
                     ul.nav.navbar-nav.navbar-right
                         li: a( href="/") Home
                         li: a( href="/about-us" ) About Us
+                        li: a( href="/how-it-works" ) How It Works
                         if user
                             li: a(href='/logout') Logout
+                            li: a(href='/logout') Hi, XYZ
+
                         else
                             li: a( href="/login") Log In
                             li: a( href="/sign-up") Sign Up

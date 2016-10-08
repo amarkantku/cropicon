@@ -23,12 +23,15 @@ var pug           = require('pug');
 // var db = require('./config/db');
 var secretKEY = require('./config/secret-key');
 
-var app     = express();
-    app.io  = require('socket.io')();
+var app           = express();
+    app.io        = require('socket.io')();
 
-var routes  = require('./routes/index');
-var users   = require('./routes/users');
-var api     = require('./routes/api')(app, express, multer);
+// application route 
+var routes        = require('./routes/index');
+var users         = require('./routes/users');
+
+// application V1 api route 
+var api           = require('./routes/api')(app, express, multer);
 
 
 
@@ -62,6 +65,7 @@ app.use('/js', express.static(__dirname + '/public/javascripts'));
 app.use('/socket', express.static(__dirname + '/public/javascripts/socket.io'));
 app.use('/css', express.static(__dirname + '/public/stylesheets'));
 app.use('/uploads',express.static(path.join(__dirname, 'uploads')));
+
 
 app.use('/api/v1',api);
 

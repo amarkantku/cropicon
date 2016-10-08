@@ -8,7 +8,7 @@
 // grab the things we need
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
-var Schema = mongoose.Schema;
+var Schema = mongoose.Schema; // Schema is a mongoose method to create database schema .
 
 
 // no of round , default it is 10
@@ -54,12 +54,15 @@ UserSchema.virtual('isLocked').get(function() {
 });
 
 
+UserSchema.virtual('isActive').get(function() {
+    return this.is_active == 'Y' ? true : false;
+});
+
 
 // We can use the Schema pre method to have operations happen before an object is saved
 
 UserSchema.pre('save', function(next) {
 	var user = this;
-
   	var currentDate = new Date();
  
   	// change the updated_at field to current date
@@ -95,7 +98,6 @@ UserSchema.pre('save', function(next) {
 
 // to compare user password
 UserSchema.methods.comparePassword = function(candidatePassword, cb) {
-    // Asynchronous call 
     bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
         if (err) return cb(err);
         cb(null, isMatch);
@@ -143,7 +145,7 @@ UserSchema.statics.search = function search (email, callback) {
 
 // expose enum on the model, and provide an internal convenience reference 
 var reasons = UserSchema.statics.failedLogin = {
-    NOT_FOUND: 0, PASSWORD_INCORRECT: 1, MAX_ATTEMPTS: 2
+    NOT_FOUND: 0, PASSWORD_INCORRECT: 1, MAX_ATTEMPTS: 2 , IN_ACTIVE: 3
 };
 
 // to check login system & locking protocol
@@ -156,6 +158,10 @@ UserSchema.statics.getAuthenticated = function(username, password, cb) {
         if (!user) {
             // callback parameter is error, user object and reason text.
             return cb(null, null, reasons.NOT_FOUND);
+        }
+
+        if(!user.isActive){
+            return cb(null, null, reasons.IN_ACTIVE);
         }
 
         // check if the account is currently locked
