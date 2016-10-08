@@ -82,54 +82,63 @@ module.exports = function(app, express,multer) {
 
 
 	api.post('/users/login', function(req , res ){
-	    User.getAuthenticated(req.body.email, req.body.password, function(err, user, reason) {
-            if (err) throw err;
+		req.assert('password', 'Password is required').notEmpty();
+		req.assert('email', 'Email is required').notEmpty();
+    	req.assert('email', 'A valid email is required').isEmail();
+
+		var errors = req.validationErrors();
+		if (errors){
+        	res.status(400).send({ success:false,code: "400XXX" ,message:"Invalid state !", errors: errors , data: [{email:req.body.email}] } );
+    	}else{
+    		User.getAuthenticated(req.body.email, req.body.password, function(err, user, reason) {
+        	    if (err) throw err;
             
-            // login was successful
-            if (user) {
+	            // login was successful
+	            if (user) {
+	            	var userTokenInfo = {
+	 					_id : user._id,
+	 					email:user.email,
+	 					created_at : Date
+	            	};
+	      			createToken(userTokenInfo, function(err , token){
+	      				if(token){
+	                		res.json({success:true,code: "200XXX", message:"Successfuly login!", data:[{token:token,email:req.body.email,user_id:user._id}] });
+	      				}else{
+	      					res.status(400).send({success:false, code: "400XXX", message:"Unable to create token ! Try again."});
+	      				}
+	                });
+	                
+	            }else{
+	            	// otherwise we can determine why we failed
+		            let reasons = User.failedLogin;
+		            let message = "";
+		            let statusCode = 0;
 
-            	var userTokenInfo = {
- 					_id : user._id,
- 					email:user.email,
- 					created_at : Date
-            	};
+		            switch (reason) {
+		                case reasons.NOT_FOUND:
+		                    message = "User doesn't exist";
+		                    statusCode = 404; // NOT FOUND: requested resource is not found, it doesn't exist
+		                    break;
 
-      			createToken(userTokenInfo, function(err , token){
-      				if(token){
-                		res.json({success:true,message:"Successfuly login!",token:token});
-      				}else{
-      					res.status(403).send({success:false,message:"Unable to create token ! Try again."});
-      				}
-                });
-                
-            }else{
-            	// otherwise we can determine why we failed
-	            var reasons = User.failedLogin;
-	            var message = "";
+		                case reasons.PASSWORD_INCORRECT:
+		                    message = "Invalid password"; 
+		              		statusCode = 400; // 400 (BAD REQUEST) request would cause an invalid state. Domain validation errors, missing data,
+		                    break;
 
-	            switch (reason) {
-	                case reasons.NOT_FOUND:
-	                    // console.log('NOT_FOUND');
-	                    message = "User doesn't exist";
-	                    break;
+		                 case reasons.IN_ACTIVE:
+		                 	statusCode = 403; // 403 (FORBIDDEN) user not authorized to perform the operation, doesn't have rights to access the resource, or the resource is unavailable for some reason
+		              		message = "You've been blocked or de-activated by system admin.";
+		                    break;
 
-	                case reasons.PASSWORD_INCORRECT:
-	                    // console.log('PASSWORD_INCORRECT');
-	              		message = "Invalid password";
-	                    break;
-
-	                 case reasons.IN_ACTIVE:
-	              		message = "You've been blocked or de-activated by system admin.";
-	                    break;
-
-	                case reasons.MAX_ATTEMPTS:
-	                    // console.log('MAX_ATTEMPTS');
-	                 	message = "You've reached max attempts! Please verify your credentials and try after 10 minutes.";
-	                    break;
+		                case reasons.MAX_ATTEMPTS:
+		                    statusCode = 400; // BAD REQUEST 
+		                 	message = "You've reached max attempts! Please verify your credentials and try after 10 minutes.";
+		                    break;
+		            }
+		            res.status(statusCode).send({ success:false, code: statusCode+'XXX', message: message, data:[{email:req.body.email,password:''}]});
 	            }
-	            res.json({ success:false,message: message,data:{email:req.body.email,password:''}});
-            }
-        });
+	        });
+    	}	    
 	});
 
 
@@ -140,13 +149,13 @@ module.exports = function(app, express,multer) {
 		if(token){
 			verifyToken(token,function(err, payload){
 				if(err){
-					res.status(403).send({success:false,message:"User authentication failed"});
+					res.status(401).send({success:false,message:"Invalid Token, User authentication failed."});
 				}
 	            req.authUser = payload;
 	            next();
         	});
 		}else{
-			res.status(403).send({success:false,message:"No Token Provided"});
+			res.status(400).send({success:false,message:"No Token Provided"});
 		}
 	});
 
@@ -175,44 +184,7 @@ module.exports = function(app, express,multer) {
 		    	res.status(200).send({"file":req.files});
 		    }
 		});
-
-		/*if(err){
-			console.error(err.stack);
-			res.status(413).send('File too large');
-		}else{
-			console.log(req.files);
-			for (var i = 0, len = req.files.avatar.length; i < len; i++) {
-			 // console.log(req.files.avatar[i]);
-			}
-
-			res.json({error_code:0,err_desc:null, filename: req.files.avatar[req.files.avatar.length - 1 ].filename, message:'file uploaded'});
-		}*/
-
-		/*if(typeof req.fileSizeError != "undefined") {
-	        res.status(413).send({"error":"File too large"});// to display filesize error
-	    } else {
-	        res.status(200).send({"file":req.files}); // when file uploaded successfully
-	    }*/
-
-
-		//res.json({error_code:0,err_desc:null, filename: req.files.avatar[req.files.avatar.length - 1 ].filename, message:'file uploaded'});
-	  	
-	  	/*fs.readFile(req.files.avatar.path, function (err, data) {
-		  	var imageName = req.files.avatar.name;
-	        if(!imageName){
-	            console.log("There was an error")
-	            res.end();
-	        }else{
-	        	var destinationPath = __dirname + "/uploads/users/profile/images/" + imageName;
-			  	fs.writeFile(destinationPath, data, function (err) {
-			    	res.redirect("back");
-			  	});
-	        }
-		});*/
 	});
-
-
-
 
 	return api;
 }
