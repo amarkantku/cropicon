@@ -1,39 +1,30 @@
 'use strict';
 
-var express       = require('express');
-var path          = require('path');
-var fs            = require('fs');
-var favicon       = require('serve-favicon');
-var logger        = require('morgan');
-var cookieParser  = require('cookie-parser');
-var bodyParser    = require('body-parser');
-
-var multer        = require('multer');
+var express       	= require('express');
+var path          	= require('path');
+var fs            	= require('fs');
+var favicon       	= require('serve-favicon');
+var logger        	= require('morgan');
+var cookieParser  	= require('cookie-parser');
+var bodyParser    	= require('body-parser');
+var multer        	= require('multer');
 
 // security & validation
-var compression   = require('compression');
-var session       = require('express-session');
-var csrf          = require('csurf');
-var helmet        = require('helmet');
-var validator     = require('express-validator');
-var pug           = require('pug');
+var compression   	= require('compression');
+var session       	= require('express-session');
+var csrf          	= require('csurf');
+var helmet        	= require('helmet');
+var validator     	= require('express-validator');
+var pug           	= require('pug');
+var secretKEY 		= require('./config/secret-key');
 
+// For socket connection 
+var app           	= express();
+	app.io        	= require('socket.io')();
 
-// config 
-// var db = require('./config/db');
-var secretKEY = require('./config/secret-key');
-
-var app           = express();
-    app.io        = require('socket.io')();
-
-// application route 
-var routes        = require('./routes/index');
-var users         = require('./routes/users');
-
-// application V1 api route 
-var api           = require('./routes/api')(app, express, multer);
-
-
+var routes        	= require('./routes/index');
+var users         	= require('./routes/users');
+var api           	= require('./routes/api')(app, express, multer);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -66,14 +57,13 @@ app.use('/socket', express.static(__dirname + '/public/javascripts/socket.io'));
 app.use('/css', express.static(__dirname + '/public/stylesheets'));
 app.use('/uploads',express.static(path.join(__dirname, 'uploads')));
 
-
+// APIes Route
 app.use('/api/v1',api);
-
 
 app.use(csrf({ cookie: true }));
 
-//Security shyts
-// app.use(helmet());
+//	Security shyts
+// 	app.use(helmet());
 app.use(helmet.xssFilter({ setOnOldIE: true }));
 app.use(helmet.frameguard('deny'));
 app.use(helmet.hsts({maxAge: 7776000000, includeSubdomains: true}));
@@ -89,7 +79,7 @@ app.use(session({
   saveUninitialized: true 
 }));
 
-//app.use(csrf());
+//	app.use(csrf());
 
 app.use(function (req, res, next) {
   res.cookie('XSRF-TOKEN', req.csrfToken(),{secure:true});
@@ -98,15 +88,9 @@ app.use(function (req, res, next) {
 });
 
 // routes  
-
-  app.get('/partials/:filename', routes.partials);
-  app.get('/users/:filename', users.actions);
-
-  app.use(routes.index);
-
-//app.use('/', routes);
-//app.use('/users', users);
-//app.use('/partials', aboutus);
+app.get('/partials/:filename', routes.partials);
+app.get('/users/:filename', users.actions);
+app.use(routes.index);
 
 
 // catch 404 and forward to error handler
@@ -122,11 +106,11 @@ app.use(function(req, res, next) {
 // will print stacktrace
 if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-      message: err.message,
-      error: err
-    });
+	res.status(err.status || 500);
+	res.render('error', {
+	  message: err.message,
+	  error: err
+	});
   });
 }
 
@@ -135,11 +119,10 @@ if (app.get('env') === 'development') {
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error', {
-    message: err.message,
-    error: {}
+	message: err.message,
+	error: {}
   });
 });
 
 var socketio = require('./socket/io')(app);
-
 module.exports = app;
