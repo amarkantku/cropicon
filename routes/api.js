@@ -219,16 +219,34 @@ module.exports = function(app, express, multer) {
 		    	let profileInfo = new UserProfile({
 					user_id : req.authUser._id,
 					images_path : req.files.avatar[0].path,
-					images_name	: req.files.avatar[0].filename	    		
+					images_name	: req.files.avatar[0].originalname	    		
 		    	});
 
-		    	// if user_id exist update else create new entry
-
-		    	profileInfo.save(function(err){
+		    	UserProfile.findOne({user_id:req.authUser._id} , function(err , profile){
 		    		if(err) res.send(err);
-		    	})
-
-		    	res.status(httpResponseCode.OK).send({file :req.files, data:profileInfo});
+		    		if(profile){
+		    			profile.images_path= req.files.avatar[0].path;
+		    			profile.images_name= req.files.avatar[0].originalname;
+		    			
+		    			profile.save(function(err , profile){
+		    				if(err) {
+		    					res.send(err);
+		    				}else{
+		    					res.send(profile);
+		    				}
+		    				
+		    			});
+		    		}else{
+		    			profileInfo.save(function(err , profile){
+		    				if(err) {
+		    					res.send(err);
+		    				}else{
+		    					res.send(profile);
+		    				}
+		    				
+		    			});
+		    		}
+		    	});
 		    }
 		});
 	});
