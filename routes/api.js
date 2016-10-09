@@ -2,6 +2,8 @@
 
 var db 		= require('../config/db');
 var User 	= require('../models/user');
+var UserProfile 	= require('../models/user_profile');
+
 var fs 		= require('fs');
 var crypto 	= require('crypto');
 var path 	= require('path');
@@ -214,7 +216,19 @@ module.exports = function(app, express, multer) {
 		       res.status(httpResponseCode.BAD_REQUEST).send({error:err});
 		    }else{
 		    	// Once upload do I/O operations , Save into database
-		    	res.status(httpResponseCode.OK).send({file :req.files});
+		    	let profileInfo = new UserProfile({
+					user_id : req.authUser._id,
+					images_path : req.files.avatar[0].path,
+					images_name	: req.files.avatar[0].filename	    		
+		    	});
+
+		    	// if user_id exist update else create new entry
+
+		    	profileInfo.save(function(err){
+		    		if(err) res.send(err);
+		    	})
+
+		    	res.status(httpResponseCode.OK).send({file :req.files, data:profileInfo});
 		    }
 		});
 	});

@@ -38,8 +38,6 @@ var UserSchema = new Schema({
     deleted_at     : Date
 });
 
-
-
 /************************ TO CREATE TOKEN and VERIFY TOKEN ********************************************/
 
 function getPrivateCert(callback){
@@ -305,13 +303,14 @@ UserSchema.on('init', function (model) {
     console.log('UserSchema is on...');
 });
 
+
+
 // the schema is useless so far we need to create a model using it
 // UserSchema is <a Schema> of type User
 var User = mongoose.model('User', UserSchema);
 
 // make this available to our users in our Node applications
 module.exports = User;
-
 
 
 /* TIPS: */
