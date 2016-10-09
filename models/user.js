@@ -5,10 +5,15 @@
  * with that table and Models are defined by passing a Schema instance to mongoose.model.
  */
 
+var jwt      = require('jsonwebtoken');
+var fs       = require('fs');
+var path     = require('path');
+
+
 // grab the things we need
 var mongoose = require('mongoose');
-var bcrypt = require('bcrypt-nodejs');
-var Schema = mongoose.Schema; // Schema is a mongoose method to create database schema .
+var bcrypt   = require('bcrypt-nodejs');
+var Schema   = mongoose.Schema; // Schema is a mongoose method to create database schema .
 
 
 // no of round , default it is 10
@@ -34,10 +39,36 @@ var UserSchema = new Schema({
 });
 
 
+
+/************************ TO CREATE TOKEN and VERIFY TOKEN ********************************************/
+
+function getPrivateCert(callback){
+    fs.readFile(path.resolve(__dirname, '../config/private-rsa-1024.pem'), function read(err, data) {
+        if (err) {
+            callback(err);
+        }else{
+            callback(null, data);   
+        }
+    });
+}
+
+function getPublicCert(callback){
+    fs.readFile(path.resolve(__dirname, '../config/public-rsa-1024.pem'), function read(err, data) {
+        if (err) {
+            callback(err);
+        }else{
+            callback(null, data);   
+        }
+    });
+}
+
+/***************************************************************************************************/
+
 // a setter method
 function toLower (value) {
   return value.toLowerCase();
 }
+
 
 UserSchema.path('role')
     .get(function(value) {
@@ -48,15 +79,18 @@ UserSchema.path('role')
 });
 
 
+
 UserSchema.virtual('isLocked').get(function() {
     // check for a future lockUntil timestamp
     return !!(this.lock_until && this.lock_until > Date.now());
 });
 
 
+
 UserSchema.virtual('isActive').get(function() {
     return this.is_active == 'Y' ? true : false;
 });
+
 
 
 // We can use the Schema pre method to have operations happen before an object is saved
@@ -95,6 +129,7 @@ UserSchema.pre('save', function(next) {
         });  
     }
 });
+
 
 // to compare user password
 UserSchema.methods.comparePassword = function(candidatePassword, cb) {
@@ -142,6 +177,11 @@ UserSchema.pre('update', function(next) {
 UserSchema.statics.search = function search (email, callback) {
     return this.where('email', new RegExp(email, 'i')).exec(callback);
 }
+
+UserSchema.statics.searchByEmailId = function search (email, callback) {
+    return this.where('email', new RegExp(email, 'i')).exec(callback);
+}
+
 
 // expose enum on the model, and provide an internal convenience reference 
 var reasons = UserSchema.statics.failedLogin = {
@@ -200,6 +240,64 @@ UserSchema.statics.getAuthenticated = function(username, password, cb) {
         });
     });
 };
+
+
+// To create token after successful login 
+UserSchema.statics.createToken = function(user, cb) {
+
+    // Get private certificate to generate token for loggedin user
+     getPrivateCert(function(error, privateCert){
+        if(privateCert){
+
+            // Sign Token with RSA-256 Algorithm
+            jwt.sign(user, privateCert, { algorithm: 'RS256' }, function(err, token) {
+
+                // If error then return error 
+                if (err) return cb(err);
+
+                // If not error & token signed successfully return token 
+                if(token){
+                    return cb(null, token);
+                } 
+            });  
+        }else{
+            // If unable to open private certificate file , return error to callback function 
+            return cb(error);
+        }
+    });
+}
+
+
+// To verify token on request
+UserSchema.statics.verifyToken = function(token, cb) {
+
+    // Get public certificate to verify token 
+     getPublicCert(function( error, publicCert){
+
+        // If certificate found , verify input token from request & return palyload to move next request 
+        if(publicCert){
+
+            // Verify token using public certifcate & RSA-256 Algorithm
+            jwt.verify(token, publicCert,{ algorithm: 'RS256' }, function (err, payload) {
+
+                // If error , return err
+                if (err) return cb(err);
+
+                // if successfully verified , return payload to requested client.
+                if(payload){
+                    return cb(null, payload);
+                } 
+            });  
+        }else{
+
+            // Unable to open public certificate key file
+            return cb(error);
+        }
+    });
+}
+
+
+
 
 UserSchema.on('init', function (model) {
     // do stuff with the model, 
