@@ -8,6 +8,12 @@ var UserProfileSchema = new Schema({
     images_name : { type : String},
     images_path	: {	type : String},
     created_at  : { type : Date , default : Date.now },
+    updated_at  : { type : Date , default : Date.now },
+});
+
+UserProfileSchema.pre('update', function(next) {
+	this.update({},{ $set: { updated_at: new Date() } });
+	next();
 });
 
 UserProfileSchema.on('init', function (model) {
