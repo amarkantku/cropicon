@@ -7,25 +7,40 @@ var crypto 	= require('crypto');
 var path 	= require('path');
 
 
-module.exports = function(app, express,multer) {
+module.exports = function(app, express, multer) {
+
+	// API Object to intract with REST API.
 	var api = express.Router();
 
-	var httpResponseCode = {
+	/******* Configure Upload documents & images path **********************/
+	let imageUploadPath = {
+		USER_IMAGES_PATH	: './uploads/users/profile/images/',
+		
+	}
+
+	let documentsUploadPath ={
+		USER_DOCUMENTS_PATH	: './uploads',
+	}
+	/******** Configure Upload documents & images path end here ***********/
+
+
+	// HTTP Response code for APIes response  
+	let httpResponseCode = {
     	OK			: 200,
     	BAD_REQUEST	: 400, 
     	FORBIDDEN	: 403,
     	NOT_FOUND	: 404 
 	};
 
-
+	/*********** File storage [Storage on disk ] configuration ***********/
 	var storage =   multer.diskStorage({
   		destination: function (req, file, callback) {
   			var mimeType = ['image/png','image/jpg','image/jpeg'];
   			
   			if(file.fieldname === 'avatar' && mimeType.indexOf(file.mimetype) >= 0){
-  				callback(null, './uploads/users/profile/images/');
+  				callback(null, imageUploadPath.USER_IMAGES_PATH);
   			}else{
-  				callback(null, './uploads');
+  				callback(null, documentsUploadPath.USER_DOCUMENTS_PATH);
   			}
   		},
 		filename: function (req, file, callback) {
@@ -39,12 +54,18 @@ module.exports = function(app, express,multer) {
 		}
 	});
 
+	// File size for user images 
 	var upload = multer({ storage: storage, limits:{ fileSize: 1048576 } });
 
-	// To upload user profile images 
+	// To upload user profile images settings
 	var userProfileImageUpload = upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'gallery', maxCount: 8 }]);
 
+	/***********************************************************************/
 
+
+	/***********************APIies Start Here ******************************/
+
+	// To Register / sign up new user 
 	api.post('/users/signup', function(req , res ){
 	  	// check user exist ? 
 
@@ -52,6 +73,7 @@ module.exports = function(app, express,multer) {
 	});
 
 
+	// To login existing user into application 
 	api.post('/users/login', function(req , res ){
 		req.assert('password', 'Password is required').notEmpty();
 		req.assert('email', 'Email is required').notEmpty();
@@ -118,19 +140,31 @@ module.exports = function(app, express,multer) {
 	/**************************Middleware****************************/
 
 	api.use(function(req, res, next){
+
+		// To read token from request object 
 		var token = req.body.token || req.params.token || req.headers['x-access-token'];
+
+		// If token is not empty or null or undefined 
 		if(token){
+
+			// To verify token is valid or not 
 			User.verifyToken(token,function(err, payload){
+
 				if(err){
 					if(err.code == 'ENOENT' && err.errno == -2){
 						// Unavailable to open key certificate file 
 						delete err.path;
 						res.status(httpResponseCode.BAD_REQUEST).send({success:false,code: "400XXX",message:"Token passcode not found, User authentication failed.", errors : err});
 					}else{		
+						// If token is invalid 
 						res.status(httpResponseCode.BAD_REQUEST).send({success:false,code: "400XXX",message:"Invalid token, User authentication failed.", errors : err});
 					}
 				}
+
+				// If token is valid & passed without any error
 	            req.authUser = payload;
+
+	            // To execute next matching route
 	            next();
         	});
 		}else{
@@ -170,7 +204,7 @@ module.exports = function(app, express,multer) {
 	api.get('/users/image', function(req , res ){
 	   if(req.authUser){
 	       	res.setHeader('Content-Type', 'image/*');
-    		fs.createReadStream(path.join('./uploads/users/profile/images/', req.headers.filename)).pipe(res)
+    		fs.createReadStream(path.join(imageUploadPath.USER_IMAGES_PATH, req.headers.filename)).pipe(res)
 	    }
 	});
 
