@@ -1,12 +1,16 @@
 "use strict";
+var http            = require("http");
+var path 			= require('path');
+var fs 				= require('fs');
+var crypto 			= require('crypto');
+var moment          = require("moment");
 
-var db 		= require('../config/db');
-var User 	= require('../models/user');
+var db 				= require('../config/db');
+var User 			= require('../models/user');
 var UserProfile 	= require('../models/user_profile');
 
-var fs 		= require('fs');
-var crypto 	= require('crypto');
-var path 	= require('path');
+// var utc = moment.utc().valueOf();
+// console.log(moment.utc(utc).toDate());
 
 
 module.exports = function(app, express, multer) {
