@@ -15,10 +15,7 @@ header.header(role='banner')
                         li: a( href="/") Home
                         li: a( href="/about-us" ) About Us
                         li: a( href="/how-it-works" ) How It Works
-                        if user
-                            li: a(href='/logout') Logout
-                            li: a(href='/logout') Hi, XYZ
-
-                        else
-                            li: a( href="/login") Log In
-                            li: a( href="/sign-up") Sign Up
+                        li: a( href="/login" ng-hide="userLoggedIn.name") Log In
+                        li: a( href="/sign-up" ng-hide="userLoggedIn.name") Sign Up
+                        li: a( href='/logout' ng-show="userLoggedIn.name") Logout
+                        li: a( href='/logout' ng-show="userLoggedIn.name" ng-bind='Hi + userLoggedIn.name')

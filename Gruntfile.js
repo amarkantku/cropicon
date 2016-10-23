@@ -1,20 +1,26 @@
 module.exports = function(grunt){
   	grunt.initConfig({
+  		pkg: grunt.file.readJSON('package.json'),
     	concat: {
       		options: {
-        	process: function(src, path){
-          		return '\n/* Source: ' + path + ' */\n' + src;
-        	},
-      	},
-      	src: [
-        	'../js/**/*.js'
-      	],
-      	dest: '../bin/app-debug.js'
+	        	process: function(src, path){
+	          		return '\n/* Source: ' + path + ' */\n' + src;
+	        	}
+      		},
+	      	src: [
+	        	'../js/**/*.js'
+	      	],
+	      	dest: '../bin/app-debug.js'
     	},
     	uglify: {
-      		src: '../bin/app-debug.js',
-      		dest: '../bin/app1.js'
-    	},
+		    options: {
+		      	banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+		    },
+		    build: {
+		      	src: 'src/<%= pkg.name %>.js',
+		      	dest: 'build/<%= pkg.name %>.min.js'
+		    }
+		},
     	watch: {
       		options: {
         		atBegin: true,
@@ -53,6 +59,7 @@ module.exports = function(grunt){
     	}
 	});
 
+	// Load the plugin that provides the "uglify" task.
   	grunt.loadNpmTasks('grunt-contrib-concat');
   	grunt.loadNpmTasks('grunt-contrib-uglify');
   	grunt.loadNpmTasks('grunt-contrib-watch');

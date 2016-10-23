@@ -1,16 +1,10 @@
-<div class="container" ng-controller="LoginController as ctrl">
-	<div class="row">
-		<div class="col-md-4 col-md-offset-4">
-		<div class="panel panel-primary">
-			<div class="panel-heading">{{headerTitle}}</div>
-			<div class="panel-body">
-				<form role="form" name="userLoginForm" id="user-login-form" ng-submit="ctrl.submit()">
-					<input type="text" name="uname" ng-model="ctrl.user.username" placeholder="Username" ng-required ng-minlength="4">
-					<input type="password" name="pwd" ng-model="ctrl.user.password" placeholder="Password" ng-required>
-					<input class="btn-login" type="submit" value="Submit" ng-disabled="userLoginForm.$invalid">
-				</form>
-			</div>
-		</div>	
-		</div>	
-	</div>
-</div>
+.container(ng-controller='LoginController as ctrl')
+    .row
+        .col-md-4.col-md-offset-4
+            .panel.panel-primary
+                .panel-heading {{headerTitle}}
+                .panel-body
+                    form#user-login-form(role='form', name='userLoginForm', ng-submit='ctrl.submit()')
+                        input(type='text', name='uname', ng-model='ctrl.user.username', placeholder='Username', ng-required='', ng-minlength='4')
+                        input(type='password', name='pwd', ng-model='ctrl.user.password', placeholder='Password', ng-required='')
+                        input.btn-login(type='submit', value='Submit', ng-disabled='userLoginForm.$invalid')

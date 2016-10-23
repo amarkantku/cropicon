@@ -19,11 +19,11 @@ var csrf          	= require('csurf');
 var helmet        	= require('helmet');
 var validator     	= require('express-validator');
 var pug           	= require('pug');
-var secretKEY 		= require('./config/secret-key');
+var secretKEY 		  = require('./config/secret-key');
 
 // For socket connection 
 var app           	= express();
-	app.io        	= require('socket.io')();
+	app.io        	  = require('socket.io')();
 
 var routes        	= require('./routes/index');
 var users         	= require('./routes/users');

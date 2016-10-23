@@ -1,16 +1,48 @@
 "use strict";
-var http            = require("http");
+var http            = require('http');
 var path 			= require('path');
 var fs 				= require('fs');
 var crypto 			= require('crypto');
-var moment          = require("moment");
+var moment          = require('moment');
+var request 		= require('request');
+var nodemailer 		= require("nodemailer");
+var xoauth2 		= require('xoauth2');
 
+var readline 		= require('readline');
+var google 			= require('googleapis');
+var googleAuth 		= require('google-auth-library');
+
+	
 var db 				= require('../config/db');
 var User 			= require('../models/user');
 var UserProfile 	= require('../models/user_profile');
 
 // var utc = moment.utc().valueOf();
 // console.log(moment.utc(utc).toDate());
+
+
+/*var smtpConfig = {
+    host: 'smtp.gmail.com',
+    port: 465,
+    service: "Gmail",
+    secure: true, // use SSL 
+    auth: {
+       user: "amarkantk14@gmail.com",
+       pass: "amar@1987"
+   	}
+};
+
+*/	//var transporter = nodemailer.createTransport(smtpConfig);
+
+/*var smtpTransport = nodemailer.createTransport("SMTP",{
+	service: "Gmail",  // sets automatically host, port and connection security settings
+   	auth: {
+       user: "amarkantk14@gmail.com",
+       pass: "amar@1987"
+   	}
+});
+*/
+
 
 
 module.exports = function(app, express, multer) {
@@ -74,22 +106,230 @@ module.exports = function(app, express, multer) {
 	// To Register / sign up new user 
 	api.post('/users/signup', function(req , res ){
 	  	// check user exist ? 
+	  	//req.checkBody("leader_mobile_no", "Enter a valid phone number.").isMobilePhone("en-IN");
+
 
 	  	// if user doesn't exist , create new user
 	});
+ 
+	api.get('/send-mail', function(req , res ){
+
+		var SCOPES = [
+				'https://mail.google.com/',
+				'https://www.googleapis.com/auth/gmail.readonly',
+				'https://www.googleapis.com/auth/plus.me',
+  				'https://www.googleapis.com/auth/calendar',
+  				'https://www.googleapis.com/auth/gmail.modify',
+    			'https://www.googleapis.com/auth/gmail.compose',
+    			'https://www.googleapis.com/auth/gmail.send'
+			];
+
+		var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + '/cropicon/.credentials/';
+		var TOKEN_PATH = TOKEN_DIR + 'gmail-nodejs.json';
+
+
+// Load client secrets from a local file.
+
+		fs.readFile(path.resolve(__dirname, '../config/client_secret.json'), function processClientSecrets(err, content) {
+		  if (err) {
+		    console.log('Error loading client secret file: ' + err);
+		    return;
+		  }
+		  //sconsole.log(JSON.parse(content));
+		  // Authorize a client with the loaded credentials, then call the
+		  // Gmail API.
+		  authorize(JSON.parse(content), listLabels);
+		});
+
+
+
+
+/**
+ * Create an OAuth2 client with the given credentials, and then execute the
+ * given callback function.
+ *
+ * @param {Object} credentials The authorization client credentials.
+ * @param {function} callback The callback to call with the authorized client.
+ */
+
+
+
+		function authorize(credentials, callback) {
+		  var clientSecret = credentials.web.client_secret;
+		  var clientId = credentials.web.client_id;
+		  var redirectUrl = credentials.web.redirect_uris['0'];
+		 // console.log(credentials.web.redirect_uris[0]);
+
+		  var auth = new googleAuth();
+		  var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
+
+		  // Check if we have previously stored a token.
+		  fs.readFile(TOKEN_PATH, function(err, token) {
+		    if (err) {
+		      getNewToken(oauth2Client, callback);
+		    } else {
+		      oauth2Client.credentials = JSON.parse(token);
+		      callback(oauth2Client);
+		    }
+		  });
+		}
+/**
+ * Store token to disk be used in later program executions.
+ *
+ * @param {Object} token The token to store to disk.
+ */
+
+function storeToken(token) {
+  try {
+    fs.mkdirSync(TOKEN_DIR);
+  } catch (err) {
+    if (err.code != 'EEXIST') {
+      throw err;
+    }
+  }
+  fs.writeFile(TOKEN_PATH, JSON.stringify(token));
+  console.log('Token stored to ' + TOKEN_PATH);
+}
+
+
+/**
+ * Get and store new token after prompting for user authorization, and then
+ * execute the given callback with the authorized OAuth2 client.
+ *
+ * @param {google.auth.OAuth2} oauth2Client The OAuth2 client to get token for.
+ * @param {getEventsCallback} callback The callback to call with the authorized
+ *     client.
+ */
+
+function getNewToken(oauth2Client, callback) {
+  var authUrl = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: SCOPES
+  });
+
+  console.log('Authorize this app by visiting this url: ', authUrl);
+
+  var rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  rl.question('Enter the code from that page here: ', function(code) {
+    rl.close();
+    oauth2Client.getToken(code, function(err, token) {
+      if (err) {
+        console.log('Error while trying to retrieve access token', err);
+        return;
+      }
+      oauth2Client.credentials = token;
+      storeToken(token);
+      callback(oauth2Client);
+    });
+  });
+}
+
+
+/**
+ * Lists the names and IDs of up to 10 files.
+ *
+ * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
+ */
+
+function listLabels(auth) {
+  var gmail = google.gmail('v1');
+  gmail.users.labels.list({
+    auth: auth,
+    userId: 'me',
+  }, function(err, response) {
+    if (err) {
+      console.log('The API returned an error: ' + err);
+      return;
+    }
+    console.log(response)
+    var labels = response.labels;
+    if (labels.length == 0) {
+      console.log('No labels found.');
+    } else {
+      console.log('Labels:');
+      for (var i = 0; i < labels.length; i++) {
+        var label = labels[i];
+        console.log('- %s', label.name);
+      }
+    }
+  });
+}
+
+
+
+
+/*
+		var transporter = nodemailer.createTransport({
+    		service: 'gmail',
+    		auth: {
+        		xoauth2: xoauth2.createXOAuth2Generator({
+        			scope: 'https://mail.google.com/',
+            		user: "amarkantk14@gmail.com", 
+			    	clientId: "534493151657-5i03nund3ok07lrmaectncpdnd3iu06v.apps.googleusercontent.com",
+			    	clientSecret: "5CvLbnf6MbGFH37Wzz__r5lH",
+            		refreshToken: "1/HXtHU5_ZFHJIDfZqXPZ9T_TVzhmt08l7FkiYK-6XmdcRx0-XbH5cXCSbL4bes4J9",
+            		accessToken: "ya29.Ci9-A3iVfAAJ3hnKTu__eSfbZGPjT-DMM5JnwbtKJXEhLEP3pr7inOpw8VGSphxtlQ"
+        		})
+    		}
+		});
+
+
+		var mailOptions = {
+			from: "Amarkant Kumar<amarkantk14@gmail.com>",
+			to: "Amarkant Kumar <amar.du2013@gmail.com>",
+			subject: "Hello",
+			generateTextFromHTML: true,
+			html: "<b>Hello world</b>"
+		};
+
+
+		transporter.sendMail(mailOptions, function(error, response) {
+			  if (error) {
+			    console.log(error);
+			  } else {
+			    console.log(response);
+			  }
+		});*/
+	});
+
+ 	// route for logging out
+    api.get('/logout', function(req, res) {
+       /* req.logout();
+        res.redirect('/');*/
+    });
+
 
 
 	// To login existing user into application 
 	api.post('/users/login', function(req , res ){
+
+		req.sanitize('password').trim();
 		req.assert('password', 'Password is required').notEmpty();
+		req.assert('password', '6 to 10 characters required').len(6, 10);
+
+		req.sanitize('email').trim();
 		req.assert('email', 'Email is required').notEmpty();
     	req.assert('email', 'A valid email is required').isEmail();
 
+    	// req.assert("mobile_no", "Enter a valid phone number.").isMobilePhone("en-IN");
+
+    	// req.assert("xd", "Enter a valid xd number.").isAlpha();
+
+    	//req.assert(['admins', '0', 'name'], 'must only contain letters').isAlpha();
+
 		var errors = req.validationErrors();
 		if (errors){
-        	res.status(httpResponseCode.BAD_REQUEST).send({ success:false,code: "400XXX" ,message:"Invalid state !", errors: errors , data: [{email:req.body.email}] } );
+        	res.status(httpResponseCode.BAD_REQUEST).send({ success:false,code: "400XXX" ,message:"Invalid state !", errors: errors } );
     	}else{
-    		User.getAuthenticated(req.body.email, req.body.password, function(err, user, reason) {
+
+    		let email = req.params.email || req.query.email || req.body.email;
+    		let password = req.params.password || req.query.password || req.body.password;
+
+    		User.getAuthenticated(email,password, function(err, user, reason) {
         	    if (err) throw err;
             
 	            // login was successful
@@ -148,7 +388,7 @@ module.exports = function(app, express, multer) {
 	api.use(function(req, res, next){
 
 		// To read token from request object 
-		var token = req.body.token || req.params.token || req.headers['x-access-token'];
+		var token = req.body.token || req.params.token || req.headers['x-access-token'] || req.query.token;
 
 		// If token is not empty or null or undefined 
 		if(token){

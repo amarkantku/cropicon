@@ -18,6 +18,8 @@
     "express": "~4.13.1",
     "express-session": "~1.13.0",
     "express-validator": "^2.20.3",
+    "google-auth-library": "^0.9.8",
+    "googleapis": "^14.0.0",
     "grunt": "^1.0.1",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-concat": "^1.0.1",
@@ -32,12 +34,15 @@
     "mongoose": "~4.4.14",
     "morgan": "~1.7.0",
     "multer": "^1.2.0",
+    "mysql": "^2.11.1",
+    "nodemailer": "^2.6.4",
     "nsp": "^2.3.2",
     "pug": "^2.0.0-alpha6",
     "request": "^2.75.0",
     "serve-favicon": "~2.3.0",
     "socket.io": "^1.4.8",
-    "uglify-js": "^2.6.2"
+    "uglify-js": "^2.6.2",
+    "xoauth2": "^1.2.0"
   },
   "engines": {
     "node": "4.4.3"
