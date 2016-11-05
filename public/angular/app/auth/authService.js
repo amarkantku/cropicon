@@ -1,7 +1,6 @@
 'use strict';
 angular.module('AuthService',[])
 
-
 .factory('Auth',function($http, $q, AuthToken,API_PATH){
 
 	return {
@@ -104,7 +103,7 @@ angular.module('AuthService',[])
   			return res;
 		},
 		responseError : function(response) {
-			if(response.status == 403){
+			if(response.status === 403 || response.status === 401){
 				$location.path('/login')
 			}
 			return $q.reject(response);
@@ -125,4 +124,20 @@ angular.module('AuthService',[])
         }
     };
     return timestampMarker;
+}])
+
+.provider('securityInterceptor', [function() {
+ 	this.$get = function($location, $q) {
+    	return function(promise) {
+     		return promise.then(null, function(response) {
+        		if(response.status === 403 || response.status === 401) {
+          			$location.path('/');
+        		}
+        		return $q.reject(response);
+      		});
+    	};
+  	};
 }]);
+
+
+

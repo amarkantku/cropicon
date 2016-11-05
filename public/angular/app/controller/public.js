@@ -2,9 +2,31 @@
 	'use strict';
 	var iPublic = angular.module('iPublicAccess',[]);
 
-	iPublic.controller('HomeController',function($scope,$log){
-		// $log.info('home');
-	});
+	iPublic.controller('HomeController', ['$scope','$log','$interval', function($scope,$log,$interval) {
+    	// $log.info('home');
+
+		$scope.greeting = "Hello Amar";
+
+		$scope.clock = "loading clock..."; // initialise the time variable
+    	/*$scope.tickInterval = 1000 //ms
+
+	    var tick = function() {
+	        $scope.clock = Date.now() // get the current time
+	        $timeout(tick, $scope.tickInterval); // reset the timer
+	    }
+	    // Start the timer
+	    $timeout(tick, $scope.tickInterval);
+
+*/
+
+	    var clockTick = function() {
+    		$scope.clock = Date.now();
+  		}
+  		clockTick();
+  		$interval(clockTick, 1000);
+
+	}]);
+
 
 	iPublic.controller('AboutUsController', ['$scope','$log', function($scope,$log) {
     	$scope.message = 'Hello From Controller';

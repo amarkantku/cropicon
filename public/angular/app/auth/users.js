@@ -4,7 +4,7 @@
 
 	Users.controller('LoginController', ['$scope','$rootScope','$log','$location', function($scope, $rootScope, $log, $location) {
 	    $scope.headerTitle = 'Login !';
-	    let self = this;
+	    var self = this;
 	    self.submit = function() {
 	       $log.info('User clicked submit with ', self.user);
 	    };

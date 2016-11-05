@@ -1,0 +1,10 @@
+{
+  "name": "cropicon",
+  "version": "1.0.0",
+  "dependencies": {
+    "bootstrap": "3.x",
+    "jquery": "2.x",
+    "font-awesome": "*",
+    "roboto-fontface": "^0.5.0"
+  }
+}

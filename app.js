@@ -52,7 +52,7 @@ app.use(helmet());
 app.use(validator());
 
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'),{ maxAge: 864000000 }));
 app.use('/img', express.static(__dirname + '/public/images'));
 app.use('/ngs', express.static(__dirname + '/public/angular'));
 app.use('/js', express.static(__dirname + '/public/javascripts'));
@@ -84,9 +84,18 @@ app.use(session({
 
 //	app.use(csrf());
 
+var time = Date.now || function() { 
+  return +new Date;
+};
+
+
+
+app.locals.version = time();
+
 app.use(function (req, res, next) {
   res.cookie('XSRF-TOKEN', req.csrfToken(),{secure:true});
   res.locals.csrfToken = req.csrfToken();
+  //res.setHeader('Cache-Control', 'public, max-age=0')
   next();
 });
 
