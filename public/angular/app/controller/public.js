@@ -36,7 +36,14 @@
 
 	iPublic.controller('HowItWorksController', ['$scope','$log', function($scope,$log) {
     	$scope.message = 'Hello From HowItWorksController';
-    	// $log.info('HowItWorksController');
+    	 $log.info('HowItWorksController');
+	}]);
+
+
+
+    iPublic.controller('LogoutController', ['$scope','$log', function($scope,$log) {
+    	
+    	 $log.info('LogoutController');
 	}]);
 
 

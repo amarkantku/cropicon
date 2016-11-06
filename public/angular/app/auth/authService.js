@@ -1,18 +1,30 @@
 'use strict';
 angular.module('AuthService',[])
 
-.factory('Auth',function($http, $q, AuthToken,API_PATH){
+.factory('Auth',function($http, $q,$resource ,$rootScope ,AuthToken,API_PATH){
 
 	return {
-		login : function(username,  password){
-			return $http.post(API_PATH + 'users/login',{
-				email : username, 
-				password: password 
-			})
-			.success(function(data){
-				AuthToken.setToken(data.token);
-				return data;
-			})
+		doLogin : function(params){
+			var deferred = $q.defer();
+			var payload = {
+				email : params.username, 
+				password: params.password
+			};
+			var LoginResource = $resource(API_PATH + 'users/login', payload, {
+				login: {
+					method:'POST'
+				}
+			});
+
+			LoginResource.login(function(res) {
+				deferred.resolve(res);
+				if(res.success && res.hasOwnProperty('data') && res.data.hasOwnProperty('token')){
+			  		if(res.data.token !== ''){
+			  			AuthToken.setToken(res.data.token);
+			  		}
+			  	}
+			});
+			return deferred.promise;
 		},
 
 		logout : function(){
@@ -24,21 +36,12 @@ angular.module('AuthService',[])
 			return AuthToken.getToken() ? true : false;
 		},
 
-		getUser: function(){
+		getLoggedInUser: function(){
 			var token  = AuthToken.getToken(); 
 			if(token){
-
-
-				/*$http.get(API_PATH + 'users/me?token='+token).then(function(res) {
-				    var time = res.config.responseTimestamp - res.config.requestTimestamp;
-				    console.log('The request took ' + (time / 1000) + ' seconds.');
-				});*/
-
-				return $http.get(API_PATH + 'users/me?token='+token);	
-
-				// var time = response.config.responseTimestamp - response.config.requestTimestamp;
-    			// console.log('The request took ' + (time / 1000) + ' seconds.');
-
+				return $http.get(API_PATH + 'users/me?token='+token).then(function(res){
+					return res.data;
+				});	
 			}
 			return $q.reject({message: 'User has no token'});
 		} 
@@ -46,22 +49,6 @@ angular.module('AuthService',[])
 })
 
 .factory('AuthToken', ['$window','$cookies', function($window,$cookies) {
-	/*return {
-		getToken: function() {
-			return $cookies.getObject('token');
-		},window
-		setToken: function(token) {
-			if(token){
-				$cookies.putObject('token', token);	
-			}else{
-				$cookies.remove('token');
-			}
-		},
-		removeToken: function() {
-		    $cookies.remove('token');
-		}
-	};*/
-
 
 	return {
 		getToken: function() {
@@ -77,7 +64,8 @@ angular.module('AuthService',[])
 		},
 
 		removeToken: function() {
-		    $window.localStorage.removeItem('token');
+		   // $window.localStorage.removeItem('token');
+		    $window.localStorage.clear();
 		}
 	};
 

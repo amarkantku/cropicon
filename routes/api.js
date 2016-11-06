@@ -342,7 +342,7 @@ function listLabels(auth) {
 
 	      			User.createToken(userTokenInfo, function(err , token){
 	      				if(token){
-	                		res.status(httpResponseCode.OK).send({success:true,code: "200XXX", message:"Successfuly login!", data:[{token:token,email:req.body.email,user_id:user._id}] });
+	                		res.status(httpResponseCode.OK).send({success:true,code: "200XXX", message:"Successfuly login!", data:{token:token,email:req.body.email,user_id:user._id} });
 	      				}else{
 	      					delete err.path;
 	      					res.status(httpResponseCode.BAD_REQUEST).send({success:false, code: "400XXX", message:"Unable to create token ! Try again.", errors: err});
@@ -376,7 +376,7 @@ function listLabels(auth) {
 		                 	message = "You've reached max attempts! Please verify your credentials and try after 10 minutes.";
 		                    break;
 		            }
-		            res.status(statusCode).send({ success:false, code: statusCode+'XXX', message: message, data:[{email:req.body.email,password:''}]});
+		            res.json({ success:false, code: statusCode+'XXX', message: message, data:[{email:req.body.email,password:''}]});
 	            }
 	        });
     	}	    
@@ -422,8 +422,18 @@ function listLabels(auth) {
 	/**************************Middleware end***********************/
 
 	api.get('/users/me', function(req , res ){
+
+		var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+		console.log(ip);
+		console.log(req.connection.remoteAddress);
         if(req.authUser){
-        	res.json(req.authUser);
+        	 User.findOne({_id: req.authUser._id}).select('-password').exec(function(err, user) {
+        		if(err){
+        			res.json({success:false,code: "400XXX",message:"Something went wrong."});
+        		}else{
+        			res.json(user);
+        		}
+        	});
         }
 	});
 

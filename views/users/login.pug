@@ -1,10 +1,23 @@
-.container(ng-controller='LoginController as ctrl')
-    .row
-        .col-md-4.col-md-offset-4
-            .panel.panel-primary
-                .panel-heading {{headerTitle}}
-                .panel-body
-                    form#user-login-form(role='form', name='userLoginForm', ng-submit='ctrl.submit()')
-                        input(type='text', name='uname', ng-model='ctrl.user.username', placeholder='Username', ng-required='', ng-minlength='4')
-                        input(type='password', name='pwd', ng-model='ctrl.user.password', placeholder='Password', ng-required='')
-                        input.btn-login(type='submit', value='Submit', ng-disabled='userLoginForm.$invalid')
+.row(ng-controller='LoginController as ctrl')
+    .col-md-3
+    .col-md-6
+        section.login
+            h1 Login to Web App
+            form#user-login-form(role='form', name='userLoginForm', ng-submit='ctrl.submit()')
+                p
+                    input(type='text', name='login', ng-model='ctrl.user.username', placeholder='Email', ng-required='', ng-minlength='6')
+                p
+                    input(type='password', name='pwd', ng-model='ctrl.user.password', placeholder='Password', ng-required='')
+                p.remember_me
+                    label
+                        input#remember_me(type='checkbox', name='remember_me')
+                        | Remember me on this computer
+                p.submit
+                    input.btn-login(type='submit',name='commit', value='Login', ng-disabled='userLoginForm.$invalid')
+        .login-help
+            p
+                | Forgot your password? 
+                a(href='index.html') Click here to reset it
+                | .
+    .clearfix.hidden-sm-up
+    .col-md-3

@@ -19,6 +19,7 @@ var Schema   = mongoose.Schema; // Schema is a mongoose method to create databas
 // no of round , default it is 10
 const SALT_WORK_FACTOR = 12;
 const MAX_LOGIN_ATTEMPTS = 3;
+// resulting in a 2 hour lock
 const LOCK_TIME = 2 * 60 * 60 * 1000;
 
 
@@ -41,7 +42,7 @@ var UserSchema = new Schema({
 /************************ TO CREATE TOKEN and VERIFY TOKEN ********************************************/
 
 function getPrivateCert(callback){
-    fs.readFile(path.resolve(__dirname, '../config/private-rsa-1024.pem'), function read(err, data) {
+    fs.readFile(path.resolve(__dirname, '../config/private-512.pem'), function read(err, data) {
         if (err) {
             callback(err);
         }else{
@@ -51,7 +52,7 @@ function getPrivateCert(callback){
 }
 
 function getPublicCert(callback){
-    fs.readFile(path.resolve(__dirname, '../config/public-rsa-1024.pem'), function read(err, data) {
+    fs.readFile(path.resolve(__dirname, '../config/public-512.pem'), function read(err, data) {
         if (err) {
             callback(err);
         }else{
@@ -189,7 +190,7 @@ var reasons = UserSchema.statics.failedLogin = {
 // to check login system & locking protocol
 UserSchema.statics.getAuthenticated = function(username, password, cb) {
     
-    this.findOne({ username: username }).select('+password').exec(function(err, user) {
+    this.findOne({ username: username }).where('is_active').equals('Y').select('+password').exec(function(err, user) {
         if (err) return cb(err);
 
         // make sure the user exists

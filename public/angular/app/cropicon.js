@@ -74,7 +74,7 @@ angular.element(document).ready(function() {
             })
             .when('/login', {
                 templateUrl: 'users/login',
-                controller: 'LoginController',
+              //  controller: 'LoginController',
                 access: {
                     isFree: true
                 }
@@ -115,6 +115,11 @@ angular.element(document).ready(function() {
 
             var isFreeAccess = currRoute.$$route.access.isFree;
             var isLoggedIn = Auth.isLogin();
+            if(isLoggedIn && !$rootScope.user){
+                Auth.getLoggedInUser().then(function(user){
+                    $rootScope.user = user;
+                });
+            }
 
             // user is logged in && trying to access login or sign-up route , redirect to home page.
             if(isFreeAccess && (routesThatDontRequireAuth.indexOf($location.path()) !== -1 && isLoggedIn)){
@@ -123,8 +128,9 @@ angular.element(document).ready(function() {
             }else if(!isFreeAccess){
                 var isLogoutRoute = currRoute.$$route.originalPath.indexOf('/logout') !== -1;
                 if(isLogoutRoute && isLoggedIn){
-                    Auth.logout();           
-                    $location.path('/');    
+                   Auth.logout();           
+                   $location.path('/login');  
+                   $rootScope.user = false;  
                 }else if(isLogoutRoute && !isLoggedIn){ 
                     $location.path('/login');
                 } 
@@ -137,8 +143,9 @@ angular.element(document).ready(function() {
              $rootScope.loadingView = false;
         });
     }])
-
     .constant('API_PATH', 'http://localhost:3000/api/v1/');
+
+
 
     /* app.constant('API_PATH','https://cropicondev.herokuapp.com/api/v1/') */
 

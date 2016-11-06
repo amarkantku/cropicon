@@ -2,13 +2,15 @@
 	'use strict';
 	var Users = angular.module('iUsers',[]);
 
-	Users.controller('LoginController', ['$scope','$rootScope','$log','$location', function($scope, $rootScope, $log, $location) {
-	    $scope.headerTitle = 'Login !';
+	Users.controller('LoginController', ['$scope','$rootScope','$log','$location','Auth', function($scope, $rootScope, $log, $location,Auth) {
 	    var self = this;
 	    self.submit = function() {
-	       $log.info('User clicked submit with ', self.user);
+	    	Auth.doLogin(self.user).then(function(res){
+	    		if(res.success){
+	    			$location.path('/');
+	    		}
+	    	});
 	    };
-	   
 	}]);
 
 	Users.controller('SignUpController', ['$scope','$log', function($scope, $log) {
