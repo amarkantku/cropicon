@@ -105,6 +105,10 @@ module.exports = function(app, express, multer) {
 
 	// To Register / sign up new user 
 	api.post('/users/signup', function(req , res ){
+		console.log(req.sessionID);
+		// req.session.userId = 1234;
+
+		res.json(req.session);
 	  	// check user exist ? 
 	  	//req.checkBody("leader_mobile_no", "Enter a valid phone number.").isMobilePhone("en-IN");
 
@@ -321,6 +325,11 @@ function listLabels(auth) {
 
     	//req.assert(['admins', '0', 'name'], 'must only contain letters').isAlpha();
 
+			
+
+
+
+
 		var errors = req.validationErrors();
 		if (errors){
         	res.status(httpResponseCode.BAD_REQUEST).send({ success:false,code: "400XXX" ,message:"Invalid state !", errors: errors } );
@@ -395,15 +404,14 @@ function listLabels(auth) {
 
 			// To verify token is valid or not 
 			User.verifyToken(token,function(err, payload){
-
 				if(err){
 					if(err.code == 'ENOENT' && err.errno == -2){
 						// Unavailable to open key certificate file 
 						delete err.path;
-						res.status(httpResponseCode.BAD_REQUEST).send({success:false,code: "400XXX",message:"Token passcode not found, User authentication failed.", errors : err});
+						res.json({success:false,code: httpResponseCode.BAD_REQUEST+"XXX",message:"Token passcode not found, User authentication failed.", errors : err});
 					}else{		
 						// If token is invalid 
-						res.status(httpResponseCode.BAD_REQUEST).send({success:false,code: "400XXX",message:"Invalid token, User authentication failed.", errors : err});
+						res.json({success:false,code: httpResponseCode.BAD_REQUEST+"XXX",message:"Invalid token, User authentication failed.", errors : err});
 					}
 				}
 
@@ -414,7 +422,7 @@ function listLabels(auth) {
 	            next();
         	});
 		}else{
-			res.status(httpResponseCode.BAD_REQUEST).send({success:false,code: "400XXX",message:"No Token Provided."});
+			res.json({success:false,code: httpResponseCode.BAD_REQUEST+"XXX",message:"No Token Provided."});
 		}
 	});
 
@@ -423,15 +431,16 @@ function listLabels(auth) {
 
 	api.get('/users/me', function(req , res ){
 
-		var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+		/*var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 		console.log(ip);
-		console.log(req.connection.remoteAddress);
+		console.log(req.connection.remoteAddress);*/
+
         if(req.authUser){
         	 User.findOne({_id: req.authUser._id}).select('-password').exec(function(err, user) {
         		if(err){
-        			res.json({success:false,code: "400XXX",message:"Something went wrong."});
+        			res.json({success:false,code: httpResponseCode.BAD_REQUEST+"XXX",message:"Something went wrong."});
         		}else{
-        			res.json(user);
+        			res.json({ success:true, code: httpResponseCode.OK+'XXX', message: 'User records found.', user: user})
         		}
         	});
         }

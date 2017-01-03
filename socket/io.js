@@ -1,6 +1,9 @@
 
-module.exports = function( app ) {
+module.exports = function(app) {
+	'use strict';
 	app.io.on('connection',function(socket){
+		//socket.broadcast.emit('user connected x');
+
 	  	console.log('New user connected');
 		socket.on( 'disconnect', function() {
 			console.log('User disconnected');

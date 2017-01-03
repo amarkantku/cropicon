@@ -21,21 +21,30 @@ angular.element(document).ready(function() {
         'AuthService',
         'iPublicAccess',
         'iDirective',
+        'iFilter',
     ])
 
-    .config(['$routeProvider', '$locationProvider', '$httpProvider', '$sceDelegateProvider',function ($routeProvider, $locationProvider, $httpProvider, $sceDelegateProvider) {
+    .config(['$routeProvider', '$locationProvider', '$httpProvider', '$sceDelegateProvider','$provide',function ($routeProvider, $locationProvider, $httpProvider, $sceDelegateProvider,$provide) {
 
         $locationProvider.html5Mode({enabled: true,requireBase: false});
         $httpProvider.interceptors.push('AuthInterceptor');
         $httpProvider.interceptors.push('timestampMarker');
         $httpProvider.interceptors.push('securityInterceptor');
-
-
+        $httpProvider.defaults.headers.common['X-CSRF-Token'] = $('meta[name=_csrf]').attr('content');
+       // $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+        
+       /* $provide.provider('REST_API',function () {
+            this.$get = function () {
+                return {
+                    PATH: 'dddd'
+                }; 
+            }
+        });*/
 
         // Allow same origin resource loads.
         $sceDelegateProvider.resourceUrlWhitelist([
             'self',
-            'http://*.youtube.com/**'
+            'https://*.youtube.com/**'
         ]);
 
         $routeProvider
@@ -97,7 +106,6 @@ angular.element(document).ready(function() {
             });
     }])
     .run(['$rootScope','$location','Auth' ,function($rootScope, $location, Auth) {
-
         $rootScope.$on('$routeChangeStart', function(event, currRoute, prevRoute){
 
             // Show a loading message until promises are not resolved
@@ -110,14 +118,17 @@ angular.element(document).ready(function() {
 
             // enumerate routes that don't need authentication
             var routesThatDontRequireAuth = ['/login','/sign-up'];
-
             var routesThatForAdmins = ['/admin'];
 
             var isFreeAccess = currRoute.$$route.access.isFree;
-            var isLoggedIn = Auth.isLogin();
+            var isLoggedIn = Auth.isLoggedIn();
             if(isLoggedIn && !$rootScope.user){
                 Auth.getLoggedInUser().then(function(user){
-                    $rootScope.user = user;
+                    if(user){
+                        $rootScope.user = user
+                    }else{
+                        doLogout();
+                    }
                 });
             }
 
@@ -128,12 +139,16 @@ angular.element(document).ready(function() {
             }else if(!isFreeAccess){
                 var isLogoutRoute = currRoute.$$route.originalPath.indexOf('/logout') !== -1;
                 if(isLogoutRoute && isLoggedIn){
-                   Auth.logout();           
-                   $location.path('/login');  
-                   $rootScope.user = false;  
+                   doLogout();
                 }else if(isLogoutRoute && !isLoggedIn){ 
                     $location.path('/login');
                 } 
+            }
+            
+            function doLogout(){
+                Auth.logout();           
+                $location.path('/login');  
+                $rootScope.user = false;  
             }
         });
 

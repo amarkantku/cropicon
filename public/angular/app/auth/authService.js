@@ -1,18 +1,75 @@
 'use strict';
 angular.module('AuthService',[])
 
-.factory('Auth',function($http, $q,$resource ,$rootScope ,AuthToken,API_PATH){
+.factory('Auth',function($http, $q,$resource ,$rootScope ,$sanitize,AuthToken,API_PATH){
+
+
+	/*return {
+	    jokes: function (token) {
+	        return $resource('https://my.backend.com/api/jokes', null, {
+	            query: {
+	                method: 'GET'
+	                headers: {
+	                    'Authorization': 'Bearer ' + token
+	                }
+	            }
+	        })
+	    }
+	};
+	myFactory.jokes($scope.myOAuthToken).query({'jokeId': '5'});
+*/
 
 	return {
 		doLogin : function(params){
 			var deferred = $q.defer();
+
 			var payload = {
-				email : params.username, 
-				password: params.password
+				email : $sanitize(params.username), 
+				password: $sanitize(params.password)
 			};
+
+/*
+			var message = "Secret Message";
+			var key = CryptoJS.enc.Hex.parse('36ebe205bcdfc499a25e6923f4450fa8');
+			var iv  = CryptoJS.enc.Hex.parse('be410fea41df7162a679875ec131cf2c');
+
+			// Encription. Works ok
+			var encrypted = CryptoJS.AES.encrypt(
+			        message,key,
+			        {
+			            iv: iv,
+			            mode: CryptoJS.mode.CBC,
+			            padding: CryptoJS.pad.Pkcs7
+			        }
+			    );
+			console.log('encrypted:'+encrypted.ciphertext.toString());
+
+
+
+			// Decription. Works ok with "encrypted" parameter
+			var decrypted = CryptoJS.AES.decrypt(
+			        encrypted,key,
+			        {
+			            iv: iv,
+			            mode: CryptoJS.mode.CBC,
+			            padding: CryptoJS.pad.Pkcs7
+			        }
+			    );
+			console.log('decrypted:'+decrypted.toString(CryptoJS.enc.Utf8));
+			console.log('decrypted, by hand:'+decrypted.toString(CryptoJS.enc.Utf8));
+
+*/
+
+
+
+
+
+
+			
 			var LoginResource = $resource(API_PATH + 'users/login', payload, {
 				login: {
-					method:'POST'
+					method:'POST',
+					// headers: { 'Content-Type': 'application/x-www-form-urlencoded'}
 				}
 			});
 
@@ -31,8 +88,7 @@ angular.module('AuthService',[])
 			AuthToken.removeToken();
 		},
 
-		isLogin: function(){
-			// console.log(API_PATH);
+		isLoggedIn: function(){
 			return AuthToken.getToken() ? true : false;
 		},
 
@@ -40,8 +96,8 @@ angular.module('AuthService',[])
 			var token  = AuthToken.getToken(); 
 			if(token){
 				return $http.get(API_PATH + 'users/me?token='+token).then(function(res){
-					return res.data;
-				});	
+					return res.data.success && res.data.hasOwnProperty('user') ? res.data.user : null;
+				});	 
 			}
 			return $q.reject({message: 'User has no token'});
 		} 
@@ -75,16 +131,14 @@ angular.module('AuthService',[])
 
 	return {
 		request: function(config) {
-			// console.log(config);
 			var token = AuthToken.getToken();
 			if(token){
 				config.headers['x-access-token'] = token;
-				// config.headers['x-csrf-token'] = 'lalalalala';
 			}
 			return config;
 		},
 		response: function(res) {
-			// console.log(res);
+			//console.log(res);
   			/*if(res.config.url.indexOf(API_PATH) === 0 && res.data.token) {
     			// auth.saveToken(res.data.token);
   			}*/
@@ -126,6 +180,3 @@ angular.module('AuthService',[])
     	};
   	};
 }]);
-
-
-

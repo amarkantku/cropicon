@@ -7,6 +7,8 @@
 
 		$scope.greeting = "Hello Amar";
 
+		$scope.code = 'xdeM3Jkdq5g';
+
 		$scope.clock = "loading clock..."; // initialise the time variable
     	/*$scope.tickInterval = 1000 //ms
 
@@ -18,6 +20,19 @@
 	    $timeout(tick, $scope.tickInterval);
 
 */
+
+
+		$scope.videos = [
+			{
+				"url": "https://www.youtube.com/watch?v=6vE0oFFSE7c",
+				"date": "2016-05-11"
+			},
+			{
+				"url": "https://www.youtube.com/watch?v=B8YP__qroBc",
+				"date": "2016-05-11"
+			}
+		];
+
 
 	    var clockTick = function() {
     		$scope.clock = Date.now();

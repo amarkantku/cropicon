@@ -1,7 +1,12 @@
 div(ng-controller='HomeController')
     h1
-        | home {{ greeting }} ! current time is 
-        display-time  
+        | home {{ greeting }} ! current time is
+        display-time
     p {{ clock  | date:'medium'}}
     clock
         i.fa.fa-clock-o
+    div(my-youtube='', code='code')
+    div(ng-repeat="video in videos | orderBy: '-date'", style='padding:20px')
+        div
+            iframe(width='560', height='315', ng-src='{{video.url | trusted}}', frameborder='0', allowfullscreen='')
+            p Display output for control reasons: {{video.url | trusted}}
