@@ -28,7 +28,7 @@ var UserProfile 	= require('../models/user_profile');
     secure: true, // use SSL 
     auth: {
        user: "amarkantk14@gmail.com",
-       pass: "amar@1987"
+       pass: ""
    	}
 };
 
@@ -38,7 +38,7 @@ var UserProfile 	= require('../models/user_profile');
 	service: "Gmail",  // sets automatically host, port and connection security settings
    	auth: {
        user: "amarkantk14@gmail.com",
-       pass: "amar@1987"
+       pass: ""
    	}
 });
 */
@@ -273,10 +273,10 @@ function listLabels(auth) {
         		xoauth2: xoauth2.createXOAuth2Generator({
         			scope: 'https://mail.google.com/',
             		user: "amarkantk14@gmail.com", 
-			    	clientId: "534493151657-5i03nund3ok07lrmaectncpdnd3iu06v.apps.googleusercontent.com",
-			    	clientSecret: "5CvLbnf6MbGFH37Wzz__r5lH",
-            		refreshToken: "1/HXtHU5_ZFHJIDfZqXPZ9T_TVzhmt08l7FkiYK-6XmdcRx0-XbH5cXCSbL4bes4J9",
-            		accessToken: "ya29.Ci9-A3iVfAAJ3hnKTu__eSfbZGPjT-DMM5JnwbtKJXEhLEP3pr7inOpw8VGSphxtlQ"
+			    	clientId: "",
+			    	clientSecret: "",
+            		refreshToken: "",
+            		accessToken: ""
         		})
     		}
 		});
